@@ -1,0 +1,29 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\exefile\shell\BypassTunnel]
+@=""
+"MUIVerb"="Bypass Tunnel (DSCP)"
+"icon"=""
+"subcommands"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\BypassTunnel\Shell]
+@=""
+
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\BypassTunnel\Shell\BypassTunnel]
+@=""
+"MUIVerb"="Bypass Tunnel"
+"icon"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\BypassTunnel\Shell\BypassTunnel\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"BypassTunnel\""
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\BypassTunnel\Shell\DefaultTunnel]
+@=""
+"MUIVerb"="Default Tunnel"
+"icon"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\BypassTunnel\Shell\DefaultTunnel\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"DefaultTunnel\""

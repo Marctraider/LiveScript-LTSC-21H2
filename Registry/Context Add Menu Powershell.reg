@@ -1,0 +1,33 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\Powershell]
+@="@shell32.dll,-8508"
+"Extended"=-
+"Icon"="powershell.exe"
+"NoWorkingDirectory"=""
+"ShowBasedOnVelocityId"=dword:00639bc8
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\Powershell\command]
+@="powershell.exe -noexit -command Set-Location -literalPath '%V'"
+
+
+[HKEY_CLASSES_ROOT\Directory\shell\Powershell]
+@="@shell32.dll,-8508"
+"Extended"=-
+"Icon"="powershell.exe"
+"NoWorkingDirectory"=""
+"ShowBasedOnVelocityId"=dword:00639bc8
+
+[HKEY_CLASSES_ROOT\Directory\shell\Powershell\command]
+@="powershell.exe -noexit -command Set-Location -literalPath '%V'"
+
+
+[HKEY_CLASSES_ROOT\Drive\shell\Powershell]
+@="@shell32.dll,-8508"
+"Extended"=-
+"Icon"="powershell.exe"
+"NoWorkingDirectory"=""
+"ShowBasedOnVelocityId"=dword:00639bc8
+
+[HKEY_CLASSES_ROOT\Drive\shell\Powershell\command]
+@="powershell.exe -noexit -command Set-Location -literalPath '%V'"

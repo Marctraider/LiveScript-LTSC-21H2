@@ -1,0 +1,30 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\exefile\shell\BlockExe]
+@=""
+"MUIVerb"="Block Executable"
+"icon"=""
+"subcommands"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\BlockExe\Shell]
+@=""
+
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\BlockExe\Shell\BlockExe]
+@=""
+"MUIVerb"="Block Executable"
+"icon"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\BlockExe\Shell\BlockExe\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"BlockExecutable\""
+
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\BlockExe\Shell\UnblockExe]
+@=""
+"MUIVerb"="Unblock Executable"
+"icon"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\BlockExe\Shell\UnblockExe\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"UnblockExecutable\""

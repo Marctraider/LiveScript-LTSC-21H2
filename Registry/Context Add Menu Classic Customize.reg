@@ -1,0 +1,60 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT]
+"Icon"="themecpl.dll"
+"MUIVerb"="Appearance"
+"Position"="Bottom"
+"SubCommands"=""
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT\Shell]
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT\Shell\01DesktopBackground]
+"Icon"="imageres.dll,-110"
+"MUIVerb"="Desktop Background"
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT\Shell\01DesktopBackground\Command]
+@="explorer.exe shell:::{ED834ED6-4B5A-4bfe-8F11-A626DCB6A921} -Microsoft.Personalization\\pageWallpaper"
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT\Shell\02Color]
+"Icon"="themecpl.dll"
+"MUIVerb"="Color"
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT\Shell\02Color\Command]
+@="explorer.exe shell:::{ED834ED6-4B5A-4bfe-8F11-A626DCB6A921} -Microsoft.Personalization\\pageColorization"
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT\Shell\03Sounds]
+"Icon"="mmsys.cpl"
+"MUIVerb"="Sounds"
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT\Shell\03Sounds\Command]
+@="rundll32.exe shell32.dll,Control_RunDLL mmsys.cpl ,2"
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT\Shell\04Screen Saver]
+"Icon"="PhotoScreensaver.scr"
+"MUIVerb"="Screen Saver"
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT\Shell\04Screen Saver\Command]
+@="rundll32.exe shell32.dll,Control_RunDLL desk.cpl,screensaver,@screensaver"
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT\Shell\05DesktopIcons]
+"Icon"="desk.cpl"
+"MUIVerb"="Change desktop icons"
+"CommandFlags"=dword:00000020
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT\Shell\05DesktopIcons\Command]
+@="rundll32 shell32.dll,Control_RunDLL desk.cpl,,0"
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT\Shell\06Cursors]
+"Icon"="main.cpl"
+"MUIVerb"="Change mouse pointers"
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT\Shell\06Cursors\Command]
+@="rundll32.exe shell32.dll,Control_RunDLL main.cpl,,1"
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT\Shell\07Display]
+"Icon"="display.dll,-1"
+"MUIVerb"="Classic Display options"
+"CommandFlags"=dword:00000020
+
+[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Appearance_WAT\Shell\07Display\Command]
+@="control.exe desk.cpl,Settings,@Settings"

@@ -1,0 +1,119 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall]
+@=""
+"MUIVerb"="Windows Firewall"
+"icon"="%SystemRoot%\\system32\\FirewallControlPanel.dll,0"
+"subcommands"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell]
+@=""
+
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundInternetTCPPort80]
+@=""
+"MUIVerb"="Allow Outbound Internet (TCP Port 80)"
+"icon"="%SystemRoot%\\system32\\FirewallControlPanel.dll,2"
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundInternetTCPPort80\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"AllowOutboundInternetTCPPort80\""
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundInternetTCPPort443]
+@=""
+"MUIVerb"="Allow Outbound Internet (TCP Port 443)"
+"icon"="%SystemRoot%\\system32\\FirewallControlPanel.dll,2"
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundInternetTCPPort443\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"AllowOutboundInternetTCPPort443\""
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundInternetUDPPort443]
+@=""
+"MUIVerb"="Allow Outbound Internet (UDP Port 443)"
+"icon"="%SystemRoot%\\system32\\FirewallControlPanel.dll,2"
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundInternetUDPPort443\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"AllowOutboundInternetUDPPort443\""
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundInternetAll]
+@=""
+"MUIVerb"="Allow Outbound Internet (All)"
+"icon"="%SystemRoot%\\system32\\FirewallControlPanel.dll,2"
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundInternetAll\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"AllowOutboundInternetAll\""
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundInternetAllUDP]
+@=""
+"MUIVerb"="Allow Outbound Internet (All UDP)"
+"icon"="%SystemRoot%\\system32\\FirewallControlPanel.dll,2"
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundInternetAllUDP\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"AllowOutboundInternetAllUDP\""
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundInternetAllTCP]
+@=""
+"MUIVerb"="Allow Outbound Internet (All TCP)"
+"icon"="%SystemRoot%\\system32\\FirewallControlPanel.dll,2"
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundInternetAllTCP\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"AllowOutboundInternetAllTCP\""
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundLocalAllTCP]
+@=""
+"MUIVerb"="Allow Outbound Local (All TCP)"
+"icon"="%SystemRoot%\\system32\\FirewallControlPanel.dll,2"
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundLocalAllTCP\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"AllowOutboundLocalAllTCP\""
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowInboundLocalAllTCP]
+@=""
+"MUIVerb"="Allow Inbound Local (All TCP)"
+"icon"="%SystemRoot%\\system32\\FirewallControlPanel.dll,2"
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowInboundLocalAllTCP\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"AllowInboundLocalAllTCP\""
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowInboundLocalAll]
+@=""
+"MUIVerb"="Allow Inbound Local (All)"
+"icon"="%SystemRoot%\\system32\\FirewallControlPanel.dll,2"
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowInboundLocalAll\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"AllowInboundLocalAll\""
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundLocalAll]
+@=""
+"MUIVerb"="Allow Outbound Local (All)"
+"icon"="%SystemRoot%\\system32\\FirewallControlPanel.dll,2"
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowOutboundLocalAll\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"AllowOutboundLocalAll\""
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowInboundInternetAll]
+@=""
+"MUIVerb"="Allow Inbound Internet (All)"
+"icon"="%SystemRoot%\\system32\\FirewallControlPanel.dll,2"
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowInboundInternetAll\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"AllowInboundInternetAll\""
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowCustomRule]
+@=""
+"MUIVerb"="Allow (Temporary) Custom Rule"
+"icon"="%SystemRoot%\\system32\\FirewallControlPanel.dll,2"
+
+[HKEY_CLASSES_ROOT\exefile\shell\WindowsFirewall\Shell\AllowCustomRule\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"CustomFirewallRule\""

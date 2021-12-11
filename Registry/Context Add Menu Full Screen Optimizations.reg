@@ -1,0 +1,30 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\exefile\shell\FSO]
+@=""
+"MUIVerb"="Full Screen Optimizations"
+"icon"=""
+"subcommands"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\FSO\Shell]
+@=""
+
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\FSO\Shell\DisableFSO]
+@=""
+"MUIVerb"="Disable Full Screen Optimizations"
+"icon"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\FSO\Shell\DisableFSO\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"DisableFSO\""
+
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\FSO\Shell\EnableFSO]
+@=""
+"MUIVerb"="Enable Full Screen Optimizations (Default)"
+"icon"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\FSO\Shell\EnableFSO\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"EnableFSO\""

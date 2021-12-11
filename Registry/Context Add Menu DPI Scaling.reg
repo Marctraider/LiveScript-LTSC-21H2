@@ -1,0 +1,28 @@
+Windows Registry Editor Version 5.00
+
+[-HKEY_CLASSES_ROOT\exefile\shell\disabledpi]
+
+[HKEY_CLASSES_ROOT\exefile\shell\disabledpi]
+@="Disable DP&I Scaling"
+
+[HKEY_CLASSES_ROOT\exefile\shell\disabledpi\command]
+@="cmd /c @reg add \"HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers\" /v \"%1\" /f /t REG_SZ /d \"~ HIGHDPIAWARE\">nul"
+"IsolatedCommand"="cmd /c @reg add \"HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers\" /v \"%1\" /f /t REG_SZ /d \"~ HIGHDPIAWARE\">nul"
+
+[-HKEY_CLASSES_ROOT\Msi.Package\shell\disabledpi]
+
+[HKEY_CLASSES_ROOT\Msi.Package\shell\disabledpi]
+@="Disable DP&I Scaling"
+
+[HKEY_CLASSES_ROOT\Msi.Package\shell\disabledpi\command]
+@="cmd /c @reg add \"HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers\" /v \"%1\" /f /t REG_SZ /d \"~ HIGHDPIAWARE\">nul"
+"IsolatedCommand"="cmd /c @reg add \"HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers\" /v \"%1\" /f /t REG_SZ /d \"~ HIGHDPIAWARE\">nul"
+
+[-HKEY_CLASSES_ROOT\Directory\shell\disabledpi]
+
+[HKEY_CLASSES_ROOT\Directory\shell\disabledpi]
+@="Disable DP&I Scaling"
+
+[HKEY_CLASSES_ROOT\Directory\shell\disabledpi\command]
+@="cmd /c @start /min cmd /c for /f \"usebackq delims=\" %%i in (`dir /b /s \"%1\\*.exe\" \"%1\\*.msi\"`) do @reg add \"HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers\" /v \"%%i\" /f /t REG_SZ /d \"~ HIGHDPIAWARE\""
+"IsolatedCommand"="cmd /c @start /min cmd /c for /f \"usebackq delims=\" %%i in (`dir /b /s \"%1\\*.exe\" \"%1\\*.msi\"`) do @reg add \"HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers\" /v \"%%i\" /f /t REG_SZ /d \"~ HIGHDPIAWARE\""

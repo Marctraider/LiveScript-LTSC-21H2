@@ -1,0 +1,41 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\exefile\shell\SecurityPerformance]
+@=""
+"MUIVerb"="Security and Performance"
+"icon"="%SystemRoot%\\system32\\UserAccountControlSettings.exe,0"
+"subcommands"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\SecurityPerformance\Shell]
+@=""
+
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\SecurityPerformance\Shell\Security]
+@=""
+"MUIVerb"="Security Mode"
+"icon"="%SystemRoot%\\system32\\UserAccountControlSettings.exe,0"
+
+[HKEY_CLASSES_ROOT\exefile\shell\SecurityPerformance\Shell\Security\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"SecurityMode\""
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\SecurityPerformance\Shell\Normal]
+@=""
+"MUIVerb"="Normal Mode (OS Default)"
+"icon"="%SystemRoot%\\system32\\UserAccountControlSettings.exe,0"
+
+[HKEY_CLASSES_ROOT\exefile\shell\SecurityPerformance\Shell\Normal\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"NormalMode\""
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\SecurityPerformance\Shell\Performance]
+@=""
+"MUIVerb"="Performance Mode"
+"icon"="%SystemRoot%\\system32\\UserAccountControlSettings.exe,0"
+
+[HKEY_CLASSES_ROOT\exefile\shell\SecurityPerformance\Shell\Performance\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"PerformanceMode\""
+
+
+
