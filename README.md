@@ -46,7 +46,8 @@ Only use if you have actual experience with windows and know how to minimize ris
 - Disable certain devmgmt.msc drivers
 - Optional enable MSI on supported drivers/hardware and irq affinity.
 - System-wide driver disable 'allowed to go to sleep'
-
+- Cleanup control panel
+- Desktop/Explorer/DWM custom personalization
 
 ## How to use?
 - Install LTSC without network cable attached.
