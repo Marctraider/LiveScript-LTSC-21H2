@@ -58,3 +58,5 @@ Only use if you have actual experience with windows and know how to minimize ris
 - Run.cmd will start the corresponding elevated and unelevated scripts.
 - Script can be ran after every driver, cumulative update or other significant OS change which is covered by the script. Script generated and already created custom firewall rules through context menu will not be purged.
 
+## Notes
+- Somehow on some systems, tamper protection can't seem to get disabled, but through UI does work. Strangely on all my physical computers it works fine, but in a virtual machine the method through registry doesn't seem to work.
