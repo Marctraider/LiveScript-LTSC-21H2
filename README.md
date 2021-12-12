@@ -32,6 +32,7 @@ Only use if you have actual experience with windows and know how to minimize ris
 - Classic customize (Windows 7)
 - Bypass tunnel (Basically apply specific DSCP markings to executable packets going out, so you could have router support and route specific executables over a VPN or whatever)
 - Disable DPI Scaling
+- GPU Adapter preference
 
 ###### Misc:
 - Automatic installation of Visual Runtime C++ and Direct3D9 Runtime pack if not installed.
@@ -48,8 +49,10 @@ Only use if you have actual experience with windows and know how to minimize ris
 - System-wide driver disable 'allowed to go to sleep'
 - Cleanup control panel
 - Desktop/Explorer/DWM custom personalization
+- And much more! (Too much to list)
 
 ## How to use?
+- First configure script to personal preference, set up your own power plan profiles, add/remove target computers/names. 
 - Install LTSC without network cable attached.
 - Activate built-in Administrator account.
 - Activate Windows
