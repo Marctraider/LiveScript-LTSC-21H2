@@ -1733,6 +1733,9 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12'){
     mkdir 'C:\Users\Administrator\Documents\Corsair Effects Engine'
     xcopy /E /Y /D 'Resources\Corsair Effects Engine\*.*' 'C:\Users\Administrator\Documents\Corsair Effects Engine'
 
+    mkdir 'C:\Program Files\VSTPlugins\reaplugs236_x64-install'
+    xcopy /E /Y /D 'Resources\VSTPlugins\reaplugs236_x64-install\*.*' 'C:\Program Files\VSTPlugins\reaplugs236_x64-install'
+
 }
 
 
@@ -1763,7 +1766,7 @@ rm -r C:\Windows\SoftwareDistribution\* -Force
 rm -r C:\Users\Administrator\AppData\Local\Temp\* -Force
 Remove-Item c:\Users\Public\Desktop\desktop.ini -Force
 Remove-Item c:\Users\Administrator\Desktop\desktop.ini -Force
-#dism /online /Cleanup-Image /StartComponentCleanup # Winsxs (Old updates)
+#dism /online /Cleanup-Image /StartComponentCleanup # Winsxs (Cannot undo any updates once cleaned)
 
 
 

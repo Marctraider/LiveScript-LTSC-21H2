@@ -1,0 +1,30 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\exefile\shell\GPUPref]
+@=""
+"MUIVerb"="GPU Preference"
+"icon"=""
+"subcommands"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\GPUPref\Shell]
+@=""
+
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\GPUPref\Shell\Powersaving]
+@=""
+"MUIVerb"="Power saving"
+"icon"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\GPUPref\Shell\Powersaving\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"Powersaving\""
+
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\GPUPref\Shell\Performance]
+@=""
+"MUIVerb"="Performance"
+"icon"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\GPUPref\Shell\Performance\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"Performance\""

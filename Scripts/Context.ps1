@@ -1,5 +1,6 @@
 $FileName = [io.path]::GetFileName("$($args[0])")
 
+# Security/Performance
 if ($args[1] -like 'PerformanceMode') {
 $Path = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$($FileName)"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -LiteralPath $Path -Name "MitigationOptions" -PropertyType Binary -Value ([byte[]](0x22,0x22,0x22,0x00,0x20,0x02,0x00,0x00,0x00,0x02,0x00,0x00,0x00,0x00,0x00,0x00)) -Force
@@ -29,6 +30,19 @@ Exit
 
 if ($args[1] -like 'EnableFSO') {
 Remove-ItemProperty -LiteralPath "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" -Name "$($Args[0])" -Force -Confirm:$False
+Exit
+}
+
+# GPU Preference
+if ($args[1] -like 'Powersaving') {
+$Path = "HKCU:\SOFTWARE\Microsoft\DirectX\UserGpuPreferences"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path }
+New-ItemProperty -LiteralPath $Path -Name "$($Args[0])" -PropertyType String -Value "GpuPreference=1;" -Force
+Exit
+}
+
+if ($args[1] -like 'Performance') {
+$Path = "HKCU:\SOFTWARE\Microsoft\DirectX\UserGpuPreferences"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path }
+New-ItemProperty -LiteralPath $Path -Name "$($Args[0])" -PropertyType String -Value "GpuPreference=2;" -Force
 Exit
 }
 

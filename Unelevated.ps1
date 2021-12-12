@@ -115,6 +115,7 @@ reg import ".\Registry\Context Add Security Performance Mode.reg"
 reg import ".\Registry\Context Add Menu Full Screen Optimizations.reg"
 reg import ".\Registry\Context Add Menu Bypass Tunnel (DSCP).reg"
 reg import ".\Registry\Context Add Run As Different User.reg"
+reg import ".\Registry\Context Add Menu GPU Preference.reg"
 reg import ".\Registry\Restore Windows Photo Viewer.reg"
 reg import ".\Registry\Sysinternals Eula Prompts.reg"
 
