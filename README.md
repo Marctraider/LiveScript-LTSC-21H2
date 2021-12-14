@@ -68,4 +68,4 @@ Only use if you have actual experience with windows and know how to minimize ris
 - Recommended for first use to run script again after first reboot.
 
 ## Notes
-- Somehow on some systems, tamper protection can't seem to get disabled, but through UI does work. Strangely on all my physical computers it works fine, but in a virtual machine the method through registry doesn't seem to work.
+- Unable to disable Tamper protection through script on some systems (i.e. vmware?), but does work manually through UI. (Requires more investigation on what's causing this)
