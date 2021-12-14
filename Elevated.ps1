@@ -79,6 +79,8 @@ Write-Host "Changing Registry Permissions" -ForegroundColor Green
 & .\SetACL.exe -on "HKEY_CLASSES_ROOT\Directory\Background\shell\Powershell" -ot reg -actn ace -ace "n:Administrators;p:full" -rec Yes
 & .\SetACL.exe -on "HKEY_CLASSES_ROOT\Directory\shell\Powershell" -ot reg -actn setowner -ownr "n:Administrators" -rec Yes
 & .\SetACL.exe -on "HKEY_CLASSES_ROOT\Directory\shell\Powershell" -ot reg -actn ace -ace "n:Administrators;p:full" -rec Yes
+& .\SetACL.exe -on "HKEY_CLASSES_ROOT\CLSID\{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -ot reg -actn setowner -ownr "n:Administrators" -rec Yes
+& .\SetACL.exe -on "HKEY_CLASSES_ROOT\CLSID\{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -ot reg -actn ace -ace "n:Administrators;p:full" -rec Yes
 
 
 <# Disallowed processes #>
@@ -1658,7 +1660,7 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     
     cd '.\Resources\Sonar Essence STX II\'
     & .\DisableSpeakerCompensation.exe
-    & .\MicrophoneBoost.exe
+    #& .\MicrophoneBoost.exe
     Start-Sleep -Seconds 1
     & .\RestartCard.exe
     cd ..\..

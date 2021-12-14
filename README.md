@@ -28,11 +28,16 @@ Only use if you have actual experience with windows and know how to minimize ris
 
 - Set mitigation policy per executable, either default (performance) or security. (Prerequisite for allowing firewall rule to apply)
 - Set firewall rules per executable (Either predefined for ease, All Incoming, All Outgoing, All incoming local, All outgoing local, 80/443/TCP/UDP or custom rule)
-- Take ownership on files
+- Take ownership on files/folders
 - Classic customize (Windows 7)
 - Bypass tunnel (Basically apply specific DSCP markings to executable packets going out, so you could have router support and route specific executables over a VPN or whatever)
 - Disable DPI Scaling
 - GPU Adapter preference
+- Add advanced system settings to right click on 'My PC'
+- Block executable from running
+- Open command prompt and powershell open here
+- Full screen optimization
+- Run as different user
 
 ###### Misc:
 - Automatic installation of Visual Runtime C++ and Direct3D9 Runtime pack if not installed.
@@ -42,8 +47,8 @@ Only use if you have actual experience with windows and know how to minimize ris
 - Purge default annoying sound scheme
 - Purge trash from context menu (Pin Quick Access, Pin to Start, Troubleshoot, Send To, Modern Sharing, Include in Library, Give Access To, Edit with Paint 3D / Rotate Image / 3D Print, Cast to Device, Windows Defender)
 - Permanently disable Update Medic Service, Update Orchestrator Service, Delivery Optimization, BITS, while keeping Windows Update service functional. (Thus can manually apply cumulative updates still)
-- PowerShell background script to monitor user startup (at login) entries being created by random programs and installers, and remove them automatically.
-- Disabled nagging about 'do you want to initialize disks' if they contain fully encrypted filesystems in diskmgmt.msc (And subsequently destroy the disk)
+- PowerShell background script to monitor user startup (at login) entries being created by random programs and installers, and remove them automatically. (Only affect user specific startup programs created under HCKU)
+- Disabled nagging about 'do you want to initialize disks' if they contain fully encrypted filesystems in diskmgmt.msc (And subsequently destroy the disk by accident on a misclick)
 - Disable certain devmgmt.msc drivers
 - Optional enable MSI on supported drivers/hardware and irq affinity.
 - System-wide driver disable 'allowed to go to sleep'
@@ -54,12 +59,13 @@ Only use if you have actual experience with windows and know how to minimize ris
 ## How to use?
 - First configure script to personal preference, set up your own power plan profiles, add/remove target computers/names. 
 - Install LTSC without network cable attached.
-- Activate built-in Administrator account.
+- Activate built-in Administrator account. (Optionally remove default account created on first setup)
 - Activate Windows
 - Install all desired drivers, etc.
 - Backup system in case something fails. (Recommending AOMEI Backupper)
-- Run.cmd will start the corresponding elevated and unelevated scripts.
-- Script can be ran after every driver, cumulative update or other significant OS change which is covered by the script. Script generated and already created custom firewall rules through context menu will not be purged.
+- Run.cmd will start the corresponding elevated and unelevated scripts. (Elevated has SYSTEM level privilege, unelevated runs under local user account) 
+- Script can be ran after every driver, cumulative update or other significant OS change which is covered by the script. (Script generated and already created custom firewall rules through context menu will not be purged.)
+- Recommended for first use to run script again after first reboot.
 
 ## Notes
 - Somehow on some systems, tamper protection can't seem to get disabled, but through UI does work. Strangely on all my physical computers it works fine, but in a virtual machine the method through registry doesn't seem to work.
