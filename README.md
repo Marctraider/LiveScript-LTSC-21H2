@@ -1,6 +1,8 @@
 # Windows 10 LTSC 21H2 Custom Post-install configuration script.
 
-## Disclaimer: Needs third party tools for correct functioning.
+## Disclaimer: 
+
+Needs third party tools for correct function: PsExec.exe, PsExec64.exe, SetACL.exe, SetTimerResolutionService.exe, psshutdown.exe
 
 Goal of script: Clean and usable (Compromise) Windows 10 LTSC installation while easily deployed on multiple target platforms without going through the hassle of configuring entire systems by hand, without making system unusable.
 Only use if you have actual experience with windows and know how to minimize risks in an online environment. Just some highlights:
@@ -69,3 +71,4 @@ Only use if you have actual experience with windows and know how to minimize ris
 
 ## Notes
 - Unable to disable Tamper protection through script on some systems (i.e. vmware?), but does work manually through UI. (Requires more investigation on what's causing this)
+- Use MarkC mouse acceleration curve generator for perfect 1:1 pixel movement on screen DPI other than 100% (Otherwise, disabling enhance mouse pointer is sufficient)
