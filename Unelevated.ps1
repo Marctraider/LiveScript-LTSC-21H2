@@ -125,6 +125,19 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     }
 
 #>
+
+
+# One-shot verification of Windows integrity
+$integrity = Get-ItemProperty -Path 'HKLM:\SOFTWARE\LiveScript' -Name 'IntegrityVerified'
+if($integrity.IntegrityVerified -ne 1)
+{
+    Write-Host "Verifying Windows integrity" -ForegroundColor Green
+    sfc /scannow
+    $Path = 'HKLM:\SOFTWARE\LiveScript'; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name 'IntegrityVerified' -PropertyType DWord -Value 1 -Force
+}
+
+
 <#
 End of script
 #>
