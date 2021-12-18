@@ -1,4 +1,6 @@
-﻿$DrivesCount = (gwmi -Query "Select * from Win32_LogicalDisk").Count
+﻿#
+
+$DrivesCount = (gwmi -Query "Select * from Win32_LogicalDisk").Count
 $Drives = (gwmi -Query "Select * from Win32_LogicalDisk")
 
 while(1) {

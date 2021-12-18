@@ -1715,19 +1715,16 @@ tzutil /s "W. Europe Standard Time"
 
 mkdir C:\Windows\BasicThemer2-v0.5.1-Release
 xcopy /E /Y /D Resources\BasicThemer2-v0.5.1-Release\*.* C:\Windows\BasicThemer2-v0.5.1-Release
-
 mkdir C:\Windows\Resources\Wallpapers
-xcopy /E /Y /D .\Resources\58-110-165.png C:\Windows\Resources\Wallpapers
-xcopy /E /Y /D .\Resources\aerolite.theme C:\Windows\Resources\Themes
+xcopy /Y /D .\Resources\58-110-165.png C:\Windows\Resources\Wallpapers
+xcopy /Y /D .\Resources\aerolite.theme C:\Windows\Resources\Themes
 mkdir C:\Windows\SetTimerResolutionService
-xcopy /E /Y /D Resources\SetTimerResolutionService.exe C:\Windows\SetTimerResolutionService
+xcopy /Y /D Resources\SetTimerResolutionService.exe C:\Windows\SetTimerResolutionService
 C:\Windows\SetTimerResolutionService\SetTimerResolutionService.exe -install
 sc.exe config STR start=auto
-$model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') { sc.exe config STR start=demand }
 mkdir C:\Windows\Scripts
-rm -f C:\Windows\Scripts\*
 xcopy /E /Y /D Scripts\*.ps1 C:\Windows\Scripts
-xcopy /E /Y /D Resources\psshutdown.exe C:\Windows
+xcopy /Y /D Resources\psshutdown.exe C:\Windows
 
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12'){
     mkdir 'C:\Windows\CEE 0.3.39'
@@ -1737,8 +1734,11 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12'){
 
     mkdir 'C:\Program Files\VSTPlugins\reaplugs236_x64-install'
     xcopy /E /Y /D 'Resources\VSTPlugins\reaplugs236_x64-install\*.*' 'C:\Program Files\VSTPlugins\reaplugs236_x64-install'
+    }
 
-}
+$model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') { 
+    sc.exe config STR start=demand 
+    }
 
 
 <# Copy and register DLL files #>
