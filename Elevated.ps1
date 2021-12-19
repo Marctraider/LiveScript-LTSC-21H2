@@ -801,8 +801,8 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     Disable-MMAgent -MemoryCompression -PageCombining -ApplicationPreLaunch
     #$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     #New-ItemProperty -Path $Path -Name "Win32PrioritySeparation" -PropertyType Dword -Value 22 -Force
-    #$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    #New-ItemProperty -Path $Path -Name "DisablePagingExecutive" -PropertyType Dword -Value 1 -Force
+    $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "DisablePagingExecutive" -PropertyType Dword -Value 1 -Force
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "PagingFiles" -PropertyType MultiString -Value @("c:\pagefile.sys 32768 32768") -Force
     }
@@ -810,8 +810,8 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 
     Disable-MMAgent -MemoryCompression -PageCombining -ApplicationPreLaunch
     #$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     #New-ItemProperty -Path $Path -Name "Win32PrioritySeparation" -PropertyType Dword -Value 26 -Force
-    #$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    #New-ItemProperty -Path $Path -Name "DisablePagingExecutive" -PropertyType Dword -Value 1 -Force
+    $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "DisablePagingExecutive" -PropertyType Dword -Value 1 -Force
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "PagingFiles" -PropertyType MultiString -Value @("c:\pagefile.sys 16384 16384") -Force
     }

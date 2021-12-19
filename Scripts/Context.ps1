@@ -4,14 +4,14 @@ $FileName = [io.path]::GetFileName("$($args[0])")
 if ($args[1] -like 'PerformanceMode') {
 $Path = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$($FileName)"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -LiteralPath $Path -Name "MitigationOptions" -PropertyType Binary -Value ([byte[]](0x22,0x22,0x22,0x00,0x20,0x02,0x00,0x00,0x00,0x02,0x00,0x00,0x00,0x00,0x00,0x00)) -Force
-New-ItemProperty -LiteralPath $Path -Name "UseLargePages" -PropertyType Dword -Value 1 -Force
+#New-ItemProperty -LiteralPath $Path -Name "UseLargePages" -PropertyType Dword -Value 1 -Force
 Exit
 }
 
 if ($args[1] -like 'NormalMode') {
 $Path = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$($FileName)"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -LiteralPath $Path -Name "MitigationOptions" -PropertyType Binary -Value ([byte[]](0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Force
-Remove-ItemProperty -LiteralPath "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$($FileName)" -Name UseLargePages -Force -Confirm:$False
+#Remove-ItemProperty -LiteralPath "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$($FileName)" -Name UseLargePages -Force -Confirm:$False
 Exit
 }
 
