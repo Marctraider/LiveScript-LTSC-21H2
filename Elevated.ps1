@@ -177,6 +177,13 @@ if((Get-WindowsOptionalFeature -FeatureName 'NetFx4-AdvSrvs' -Online).State -eq 
     Disable-WindowsOptionalFeature -Online -FeatureName 'NetFx4-AdvSrvs' -NoRestart
 }
 
+$model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'A10N-8800E') {
+    if((Get-WindowsOptionalFeature -FeatureName 'MediaPlayback' -Online).State -eq "Enabled") {
+        Disable-WindowsOptionalFeature -Online -FeatureName 'MediaPlayback' -NoRestart
+    }
+}
+
+
 # Enable
 if((Get-WindowsOptionalFeature -FeatureName 'SimpleTCP' -Online).State -eq "Disabled") {
     Enable-WindowsOptionalFeature -Online -FeatureName 'SimpleTCP' -NoRestart
@@ -347,6 +354,8 @@ $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\IKEEXT"; if(-not (Test-Path -Pa
 New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\QWAVE"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\ScDeviceEnum"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 
 # Manual
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\ClipSVC"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
@@ -421,6 +430,14 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'A10N-8800E') {
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\AudioEndpointBuilder"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\RmSvc"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+    $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\SgrmBroker"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+    $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\UdkUserSvc"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+    $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\WpnService"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+    $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\WpnUserService"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
     }
 
@@ -1030,9 +1047,6 @@ New-ItemProperty -Path $Path -Name "WindowPosition" -PropertyType Dword -Value 3
 
 <# Explorer/Desktop Related Configuration #>
 Write-Host "Set Explorer Configuration" -ForegroundColor Green
-# Legacy Balloon Notifications (No longer want this? We use action center now)
-#$Path = "HKU:\Software\Policies\Microsoft\Windows\Explorer"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-#New-ItemProperty -Path $Path -Name "EnableLegacyBalloonNotifications" -PropertyType Dword -Value 1 -Force
 # Disable Share Across devices
 $Path = "HKU:\Software\Microsoft\Windows\CurrentVersion\CDP"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "CdpSessionUserAuthzPolicy" -PropertyType Dword -Value 0 -Force
@@ -1301,6 +1315,10 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'A10N-8800E') {
     #New-ItemProperty -Path "$Path" -Name "AppsUseLightTheme" -Value 1 -PropertyType DWord -Force
     New-ItemProperty -Path "$Path" -Name "EnableTransparency" -Value 0 -PropertyType DWord -Force
     New-ItemProperty -Path "$Path" -Name "ColorPrevalence" -Value 0 -PropertyType DWord -Force
+
+    # Legacy Balloon Notifications
+    $Path = "HKU:\Software\Policies\Microsoft\Windows\Explorer"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "EnableLegacyBalloonNotifications" -PropertyType Dword -Value 1 -Force
     }
 
 
@@ -1350,8 +1368,8 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 
     }
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'A10N-8800E') {
     # Custom DPI 100%
-    #$Path = "HKU:\Control Panel\Desktop"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    #New-ItemProperty -Path $Path -Name "LogPixels" -PropertyType Dword -Value 96 -Force
+    $Path = "HKU:\Control Panel\Desktop"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "LogPixels" -PropertyType Dword -Value 96 -Force
     }
 
 
@@ -1399,6 +1417,10 @@ Set-NetAdapterBinding -Name '*' -DisplayName 'NDIS Usermode I/O Protocol' -AllBi
 #VMware Adapter (NAT)
 Set-NetAdapterBinding -Name 'VMware Network Adapter VMNet8' -DisplayName 'Client For Microsoft Networks' -AllBindings -Enabled 0 -ea SilentlyContinue
 Set-NetAdapterBinding -Name 'VMware Network Adapter VMNet8' -DisplayName 'File and Printer Sharing for Microsoft Networks' -AllBindings -Enabled 0 -ea SilentlyContinue
+
+$model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'A10N-8800E') {
+    Set-NetAdapterBinding -Name '*' -DisplayName 'QoS Packet Scheduler' -Enabled 0 -ea SilentlyContinue    
+    }
 
 # Disable NetBIOS over TCP/IP on all interfaces
 $i = 'HKLM:\SYSTEM\CurrentControlSet\Services\netbt\Parameters\interfaces'  
@@ -1471,7 +1493,7 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Large Send Offload V2 (IPv6)' -RegistryValue '0'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Maximum Number of RSS Queues' -RegistryValue '4'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'NS Offload' -RegistryValue '0'
-    Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Packet Priority & VLAN' -RegistryValue '0'
+    Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Packet Priority & VLAN' -RegistryValue '1'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Receive Buffers' -RegistryValue '2048'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Transmit Buffers' -RegistryValue '2048'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Receive Side Scaling' -RegistryValue '1'
@@ -1507,14 +1529,14 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'A10N-8800E') {
     #Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Flow Control' -RegistryValue '0'
     Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Gigabit Lite' -RegistryValue '0'
     Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Green Ethernet' -RegistryValue '0'
-    #Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Interrupt Moderation' -RegistryValue '0'
-    #Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Maximum Number of RSS Queues' -RegistryValue '2'
+    Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Interrupt Moderation' -RegistryValue '0'
+    Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Maximum Number of RSS Queues' -RegistryValue '4'
     Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Power Saving Mode' -RegistryValue '0'
-    #Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Priority & VLAN' -RegistryValue '0'
+    Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Priority & VLAN' -RegistryValue '1'
     #Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Receive Side Scaling' -RegistryValue '1'
-    #Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled
+    Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled
     #Set-NetOffloadGlobalSetting -ReceiveSideScaling enabled
-    #Set-NetAdapterRss -Name '*' -Profile 'NUMAStatic' -BaseProcessorNumber 2 -MaxProcessorNumber 3 -NumberOfReceiveQueues 2
+    Set-NetAdapterRss -Name '*' -Profile 'NUMAStatic' -BaseProcessorNumber 0 -MaxProcessorNumber 3 -NumberOfReceiveQueues 4
     }
 
 
@@ -1738,6 +1760,9 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12'){
 
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') { 
     sc.exe config STR start=demand 
+    }
+$model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'A10N-8800E') { 
+    sc.exe config STR start=disabled
     }
 
 

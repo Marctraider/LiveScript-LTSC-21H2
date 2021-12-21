@@ -73,12 +73,14 @@ $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -AllowStartIfO
 $Sttrig = New-ScheduledTaskTrigger -AtLogOn
 Register-ScheduledTask "Run" -Action $Sta -Settings $Stset -Trigger $Sttrig
 
-Unregister-ScheduledTask -TaskName MTHaxTool -Confirm:$false -erroraction 'silentlycontinue'
-$Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument 'Start-Process -NoNewWindow -LoadUserProfile -FilePath \"C:\Program Files\AutoHotkey\AutoHotkey.exe\" -ArgumentList "C:\Users\Administrator\Desktop\MTHaxTool\mthaxtool-systemwide_module.ahk" -WorkingDirectory "C:\Users\Administrator\Desktop\MTHaxTool"'
-$Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -ExecutionTimeLimit '00:00:00'
-$Stset.Priority = 4 # Default priority for tasks is 'Below Normal' which is troublesome as all the child processes AHK spawns consequently start at the same priority level rather than 'Normal'.
-$Sttrig = New-ScheduledTaskTrigger -AtLogOn
-Register-ScheduledTask MTHaxTool -Action $Sta -Settings $Stset -Trigger $Sttrig
+$model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12' -or $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
+    Unregister-ScheduledTask -TaskName MTHaxTool -Confirm:$false -erroraction 'silentlycontinue'
+    $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument 'Start-Process -NoNewWindow -LoadUserProfile -FilePath \"C:\Program Files\AutoHotkey\AutoHotkey.exe\" -ArgumentList "C:\Users\Administrator\Desktop\MTHaxTool\mthaxtool-systemwide_module.ahk" -WorkingDirectory "C:\Users\Administrator\Desktop\MTHaxTool"'
+    $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -ExecutionTimeLimit '00:00:00'
+    $Stset.Priority = 4 # Default priority for tasks is 'Below Normal' which is troublesome as all the child processes AHK spawns consequently start at the same priority level rather than 'Normal'.
+    $Sttrig = New-ScheduledTaskTrigger -AtLogOn
+    Register-ScheduledTask MTHaxTool -Action $Sta -Settings $Stset -Trigger $Sttrig
+    }
 
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     Unregister-ScheduledTask -TaskName "Share" -Confirm:$false -erroraction 'silentlycontinue'
@@ -128,12 +130,17 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
 
 
 # One-shot verification of Windows integrity
+$Path = 'HKLM:\SOFTWARE\LiveScript'; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+if( -not [String]::IsNullOrEmpty((Get-ItemProperty "HKLM:\SOFTWARE\LiveScript" -Name "IntegrityVerified" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty IntegrityVerified))){
+} else {
+    New-ItemProperty -Path "HKLM:\SOFTWARE\LiveScript" -Name "IntegrityVerified" -Value "0" -PropertyType "DWORD" -Force | Out-Null
+}
+
 $integrity = Get-ItemProperty -Path 'HKLM:\SOFTWARE\LiveScript' -Name 'IntegrityVerified'
 if($integrity.IntegrityVerified -ne 1)
 {
     Write-Host "Verifying Windows integrity" -ForegroundColor Green
     sfc /scannow
-    $Path = 'HKLM:\SOFTWARE\LiveScript'; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name 'IntegrityVerified' -PropertyType DWord -Value 1 -Force
 }
 
