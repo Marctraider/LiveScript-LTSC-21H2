@@ -49,12 +49,6 @@ $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -AllowStartIfO
 $Sttrig = New-ScheduledTaskTrigger -AtLogOn
 Register-ScheduledTask "State" -Action $Sta -Settings $Stset -Trigger $Sttrig
 
-Unregister-ScheduledTask -TaskName "Update" -Confirm:$false -erroraction 'silentlycontinue'
-$Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument '-NonInteractive -WindowStyle Hidden -File C:\Windows\Scripts\Update.ps1' -WorkingDirectory 'C:\Windows\System32'
-$Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -RunOnlyIfNetworkAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit '00:00:00'
-$Sttrig = New-ScheduledTaskTrigger -AtLogOn
-Register-ScheduledTask "Update" -Action $Sta -Settings $Stset -Trigger $Sttrig
-
 Unregister-ScheduledTask -TaskName ".NET Assembly Compiler" -Confirm:$false -erroraction 'silentlycontinue'
 $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument '-NonInteractive -WindowStyle Hidden "C:\Windows\Microsoft.NET\Framework\v4.0.30319\ngen.exe ExecuteQueuedItems; C:\Windows\Microsoft.NET\Framework64\v4.0.30319\ngen.exe ExecuteQueuedItems"'
 $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -ExecutionTimeLimit '00:00:00'
@@ -72,6 +66,12 @@ $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument '-NonInteract
 $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit '00:00:00'
 $Sttrig = New-ScheduledTaskTrigger -AtLogOn
 Register-ScheduledTask "Run" -Action $Sta -Settings $Stset -Trigger $Sttrig
+
+Unregister-ScheduledTask -TaskName "Update" -Confirm:$false -erroraction 'silentlycontinue'
+$Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument '-NonInteractive -WindowStyle Hidden -File C:\Windows\Scripts\Update.ps1' -WorkingDirectory 'C:\Windows\System32'
+$Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -RunOnlyIfNetworkAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit '00:00:00'
+$Sttrig = New-ScheduledTaskTrigger -AtLogOn
+Register-ScheduledTask "Update" -Action $Sta -Settings $Stset -Trigger $Sttrig 
 
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12' -or $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
     Unregister-ScheduledTask -TaskName MTHaxTool -Confirm:$false -erroraction 'silentlycontinue'
@@ -106,14 +106,6 @@ Resources\7z2104-x64\7z2104-x64.exe /S /D="C:\Program Files\7-Zip"
 
 # Inject Registry Keys
 Write-Host "Import Registry Keys from Files" -ForegroundColor Green
-reg import ".\Registry\Context Add Block Executable.reg"
-reg import ".\Registry\Context Add Menu Classic Customize.reg"
-reg import ".\Registry\Context Add Menu Command Prompt.reg"
-reg import ".\Registry\Context Add Menu Powershell.reg"
-reg import ".\Registry\Context Add Menu DPI Scaling.reg"
-reg import ".\Registry\Context Add Menu Firewall.reg"
-reg import ".\Registry\Context Add Menu Ownership.reg"
-reg import ".\Registry\Context Add Security Performance Mode.reg"
 reg import ".\Registry\Context Add Menu Full Screen Optimizations.reg"
 reg import ".\Registry\Context Add Menu Bypass Tunnel (DSCP).reg"
 reg import ".\Registry\Context Add Run As Different User.reg"
@@ -121,6 +113,17 @@ reg import ".\Registry\Context Add Menu GPU Preference.reg"
 reg import ".\Registry\Context Add Menu Advanced System Settings.reg"
 reg import ".\Registry\Restore Windows Photo Viewer.reg"
 reg import ".\Registry\Sysinternals Eula Prompts.reg"
+reg import ".\Registry\Context Add Block Executable.reg"
+reg import ".\Registry\Context Add Menu Classic Customize.reg"
+reg import ".\Registry\Context Add Menu Command Prompt.reg"
+reg import ".\Registry\Context Add Menu Powershell.reg"
+reg import ".\Registry\Context Add Menu DPI Scaling.reg"
+reg import ".\Registry\Context Add Menu Firewall.reg"
+reg import ".\Registry\Context Add Menu Ownership.reg"
+
+$model = (gwmi Win32_ComputerSystem).Model; if ( $model -notmatch 'VMware*') {
+    reg import ".\Registry\Context Add Security Performance Mode.reg"
+    }
 
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     reg import ".\Registry\XonarSwitch Profiles.reg"
