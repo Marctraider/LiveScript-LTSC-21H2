@@ -61,7 +61,7 @@ New-NetFirewallRule -Display 'Script Generated: RDP (UDP-Out)' -Direction Outbou
 New-NetFirewallRule -Display 'Script Generated: RDP (TCP-In)' -Direction Inbound -Protocol TCP -LocalPort 11139 -RemoteAddress ("LocalSubnet", "10.0.1.0-10.0.1.255") -Program 'C:\Windows\System32\svchost.exe' -Action Allow
 New-NetFirewallRule -Display 'Script Generated: RDP (UDP-In)' -Direction Inbound -Protocol UDP -LocalPort 11139 -RemoteAddress ("LocalSubnet", "10.0.1.0-10.0.1.255") -Program 'C:\Windows\System32\svchost.exe' -Action Allow
 New-NetFirewallRule -Display 'Script Generated: Echo Protocol (UDP-In)' -Direction Inbound -Protocol UDP -LocalPort 7 -RemoteAddress LocalSubnet -Program 'C:\Windows\System32\TCPSVCS.EXE' -Action Allow
-New-NetFirewallRule -Display 'Script Generated: NCSI' -Direction Outbound -Action Allow -Program 'C:\Windows\System32\svchost.exe' -Service 'NlaSvc'
+#New-NetFirewallRule -Display 'Script Generated: NCSI' -Direction Outbound -Action Allow -Program 'C:\Windows\System32\svchost.exe' -Service 'NlaSvc'
 New-NetFirewallRule -Display 'Script Generated: NTP (UDP-Out)' -Direction Outbound -Action Allow -Protocol UDP -RemotePort 123 -Program 'C:\Windows\System32\svchost.exe' -Service 'W32Time'
 New-NetFirewallRule -Display 'Script Generated: Certutil' -Direction Outbound -Action Allow -Protocol TCP -RemotePort 80 -Program 'C:\Windows\System32\certutil.exe'
 New-NetFirewallRule -Display 'Script Generated: Powershell (TCP-Out-80)' -Direction Outbound -Action Allow -Protocol TCP -RemotePort 80 -Program 'C:\Windows\System32\windowspowershell\v1.0\powershell.exe'
@@ -82,8 +82,8 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'VMware*') {
 
 <# Change Registry Permissions #>
 Write-Host "Changing Registry Permissions" -ForegroundColor Green
-& .\SetACL.exe -on "HKLM\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -ot reg -actn setowner -ownr "n:Administrators" -rec Yes
-& .\SetACL.exe -on "HKLM\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -ot reg -actn ace -ace "n:Administrators;p:full" -rec Yes
+#& .\SetACL.exe -on "HKLM\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -ot reg -actn setowner -ownr "n:Administrators" -rec Yes
+#& .\SetACL.exe -on "HKLM\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -ot reg -actn ace -ace "n:Administrators;p:full" -rec Yes
 & .\SetACL.exe -on "HKEY_CLASSES_ROOT\Drive\shell\Powershell" -ot reg -actn setowner -ownr "n:Administrators" -rec Yes
 & .\SetACL.exe -on "HKEY_CLASSES_ROOT\Drive\shell\Powershell" -ot reg -actn ace -ace "n:Administrators;p:full" -rec Yes
 & .\SetACL.exe -on "HKEY_CLASSES_ROOT\Directory\Background\shell\Powershell" -ot reg -actn setowner -ownr "n:Administrators" -rec Yes
@@ -199,7 +199,6 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'A10N-8800E') {
 if((Get-WindowsOptionalFeature -FeatureName 'SimpleTCP' -Online).State -eq "Disabled") {
     Enable-WindowsOptionalFeature -Online -FeatureName 'SimpleTCP' -NoRestart
 }
-
 dism /online /enable-feature /featurename:NetFX3 /All /Source:"Runtime Libraries\NetFx35" /NoRestart /LimitAccess
 
 
@@ -757,10 +756,10 @@ New-ItemProperty -Path $Path -Name "HiberbootEnabled" -PropertyType Dword -Value
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Power"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "CsEnabled" -PropertyType Dword -Value 0 -Force
 # Apps in Background
-$Path = "HKU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "GlobalUserDisabled" -PropertyType Dword -Value 1 -Force
-$Path = "HKU:\Software\Microsoft\Windows\CurrentVersion\Search"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "BackgroundAppGlobalToggle" -PropertyType Dword -Value 0 -Force
+#$Path = "HKU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "GlobalUserDisabled" -PropertyType Dword -Value 1 -Force
+#$Path = "HKU:\Software\Microsoft\Windows\CurrentVersion\Search"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "BackgroundAppGlobalToggle" -PropertyType Dword -Value 0 -Force
 
 # Expose all unhidden power plan options
 $PowerSettings = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerSettings' -Recurse -Depth 1 | Where-Object { $_.PSChildName -NotLike 'DefaultPowerSchemeValues' -and $_.PSChildName -NotLike '0' -and $_.PSChildName -NotLike '1' }
@@ -856,8 +855,8 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     Disable-MMAgent -MemoryCompression -PageCombining -ApplicationPreLaunch
     #$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     #New-ItemProperty -Path $Path -Name "Win32PrioritySeparation" -PropertyType Dword -Value 22 -Force
-    $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "DisablePagingExecutive" -PropertyType Dword -Value 1 -Force
+    #$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    #New-ItemProperty -Path $Path -Name "DisablePagingExecutive" -PropertyType Dword -Value 1 -Force
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "PagingFiles" -PropertyType MultiString -Value @("c:\pagefile.sys 32768 32768") -Force
     }
@@ -865,8 +864,8 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 
     Disable-MMAgent -MemoryCompression -PageCombining -ApplicationPreLaunch
     #$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     #New-ItemProperty -Path $Path -Name "Win32PrioritySeparation" -PropertyType Dword -Value 26 -Force
-    $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "DisablePagingExecutive" -PropertyType Dword -Value 1 -Force
+    #$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    #New-ItemProperty -Path $Path -Name "DisablePagingExecutive" -PropertyType Dword -Value 1 -Force
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "PagingFiles" -PropertyType MultiString -Value @("c:\pagefile.sys 16384 16384") -Force
     }
@@ -1029,7 +1028,7 @@ New-ItemProperty -Path $Path -Name "EnableDoubleTapSpace" -PropertyType Dword -V
 # GameBar/GameDVR Related
 New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR"; New-ItemProperty -Name AllowGameDVR -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -PropertyType Dword -Value 0 -Force
 # Disabling gamebar injection hook
-New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -Name ActivationType -PropertyType Dword -Value 0 -Force
+#New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -Name ActivationType -PropertyType Dword -Value 0 -Force
 $Path = "HKU:\SOFTWARE\Microsoft\GameBar"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "UseNexusForGameBarEnabled" -PropertyType Dword -Value 0 -Force
 #$Path = "HKU:\System\GameConfigStore"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
@@ -1266,6 +1265,7 @@ New-ItemProperty -Path $Path -Name "16" -PropertyType String -Value "Windows To 
 New-ItemProperty -Path $Path -Name "17" -PropertyType String -Value "Taskbar and Navigation" -Force
 New-ItemProperty -Path $Path -Name "18" -PropertyType String -Value "Indexing Options" -Force
 New-ItemProperty -Path $Path -Name "19" -PropertyType String -Value "Keyboard" -Force
+New-ItemProperty -Path $Path -Name "20" -PropertyType String -Value "3Dconnexion Settings" -Force
 # Show Default Desktop Icons
 $Path = "HKU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path -Force -Confirm:$False }
 $Path = "HKU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path -Force -Confirm:$False }
@@ -1284,9 +1284,9 @@ New-ItemProperty -Path $Path -Name "DisableLogonBackgroundImage" -PropertyType D
 $Path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "DisableAutomaticRestartSignOn" -PropertyType Dword -Value 1 -Force
 # Desktop Icon Spacing (Before per system tweaking, its too narrow by default)
-$Path = "HKU:\Control Panel\Desktop\WindowMetrics"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "IconVerticalSpacing" -PropertyType String -Value "-1100" -Force
-New-ItemProperty -Path $Path -Name "IconSpacing" -PropertyType String -Value "-1425" -Force
+#$Path = "HKU:\Control Panel\Desktop\WindowMetrics"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "IconVerticalSpacing" -PropertyType String -Value "-1100" -Force
+#New-ItemProperty -Path $Path -Name "IconSpacing" -PropertyType String -Value "-1425" -Force
 # Custom (Optimized) Visual Settings
 $Path = "HKU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "VisualFXSetting" -PropertyType Dword -Value 3 -Force
@@ -1327,15 +1327,15 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     $Path = "HKU:\Control Panel\Desktop"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path "$Path" -Name "UserPreferencesMask" -Value ([byte[]](0x90,0x32,0x07,0x80,0x10,0x00,0x00,0x00)) -PropertyType Binary -Force
     # Adjust Font Gamma (Even at 100% dpi default, its way too extreme at 1200)
-    $Path = "HKU:\Control Panel\Desktop"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "FontSmoothingGamma" -PropertyType Dword -Value 1400 -Force
+    #$Path = "HKU:\Control Panel\Desktop"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    #New-ItemProperty -Path $Path -Name "FontSmoothingGamma" -PropertyType Dword -Value 1400 -Force
     # Change Horizontal/Vertical Scrollbar Size
-    $Path = "HKU:\Control Panel\Desktop\WindowMetrics"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "ScrollHeight" -PropertyType String -Value "-245" -Force
-    New-ItemProperty -Path $Path -Name "ScrollWidth" -PropertyType String -Value "-245" -Force
+    #$Path = "HKU:\Control Panel\Desktop\WindowMetrics"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    #New-ItemProperty -Path $Path -Name "ScrollHeight" -PropertyType String -Value "-245" -Force
+    #New-ItemProperty -Path $Path -Name "ScrollWidth" -PropertyType String -Value "-245" -Force
     # Change window border size (In case we use basic theme hack)
-    $Path = "HKU:\Control Panel\Desktop\WindowMetrics"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "PaddedBorderWidth" -PropertyType String -Value "-48" -Force
+    #$Path = "HKU:\Control Panel\Desktop\WindowMetrics"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    #New-ItemProperty -Path $Path -Name "PaddedBorderWidth" -PropertyType String -Value "-48" -Force
     }
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'A10N-8800E') {
     # (Low) Visual Settings
@@ -1396,24 +1396,24 @@ New-ItemProperty -Path $Path -Name "C:\Windows\System32\mstsc.exe" -PropertyType
 # We always want to dictate custom DPI % even at common values i.e. 100%/125%/150%. This solves some issues with window locations / blurry taskbar icons after resolution change / alt+tab
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     # Custom DPI
-    $Path = "HKU:\Control Panel\Desktop"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "LogPixels" -PropertyType Dword -Value 113 -Force
+    #$Path = "HKU:\Control Panel\Desktop"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    #New-ItemProperty -Path $Path -Name "LogPixels" -PropertyType Dword -Value 113 -Force
 
     # Enable Enhance Mouse Pointer and adjust sensitivity.
-    $Path = "HKU:\Control Panel\Mouse"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "MouseSensitivity" -PropertyType String -Value "10" -Force
-    New-ItemProperty -Path $Path -Name "MouseSpeed" -PropertyType String -Value "1" -Force
-    New-ItemProperty -Path $Path -Name "MouseThreshold1" -PropertyType String -Value "6" -Force
-    New-ItemProperty -Path $Path -Name "MouseThreshold2" -PropertyType String -Value "10" -Force
+    #$Path = "HKU:\Control Panel\Mouse"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    #New-ItemProperty -Path $Path -Name "MouseSensitivity" -PropertyType String -Value "10" -Force
+    #New-ItemProperty -Path $Path -Name "MouseSpeed" -PropertyType String -Value "1" -Force
+    #New-ItemProperty -Path $Path -Name "MouseThreshold1" -PropertyType String -Value "6" -Force
+    #New-ItemProperty -Path $Path -Name "MouseThreshold2" -PropertyType String -Value "10" -Force
     
-    $Path = "HKU:\Control Panel\Mouse"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "SmoothMouseXCurve" -PropertyType Binary -Value ([byte[]](0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x10,0x11,0x0F,0x00,0x00,0x00,0x00,0x00,0x20,0x22,0x1E,0x00,0x00,0x00,0x00,0x00,0x30,0x33,0x2D,0x00,0x00,0x00,0x00,0x00,0x40,0x44,0x3C,0x00,0x00,0x00,0x00,0x00)) -Force
-    New-ItemProperty -Path $Path -Name "SmoothMouseYCurve" -PropertyType Binary -Value ([byte[]](0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x38,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x70,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xA8,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xE0,0x00,0x00,0x00,0x00,0x00)) -Force
+    #$Path = "HKU:\Control Panel\Mouse"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    #New-ItemProperty -Path $Path -Name "SmoothMouseXCurve" -PropertyType Binary -Value ([byte[]](0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x10,0x11,0x0F,0x00,0x00,0x00,0x00,0x00,0x20,0x22,0x1E,0x00,0x00,0x00,0x00,0x00,0x30,0x33,0x2D,0x00,0x00,0x00,0x00,0x00,0x40,0x44,0x3C,0x00,0x00,0x00,0x00,0x00)) -Force
+    #New-ItemProperty -Path $Path -Name "SmoothMouseYCurve" -PropertyType Binary -Value ([byte[]](0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x38,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x70,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xA8,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xE0,0x00,0x00,0x00,0x00,0x00)) -Force
     }
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
     # Custom DPI 150%
-    $Path = "HKU:\Control Panel\Desktop"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "LogPixels" -PropertyType Dword -Value 144 -Force
+    #$Path = "HKU:\Control Panel\Desktop"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    #New-ItemProperty -Path $Path -Name "LogPixels" -PropertyType Dword -Value 144 -Force
 
     # Adjust sensitivity for 1600 dpi (Half of default value 0.5)
     #$Path = "HKU:\Control Panel\Mouse"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
@@ -1534,11 +1534,11 @@ Set-SmbClientConfiguration -EnableBandwidthThrottling 0 -Force
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'ARP Offload' -RegistryValue '0'
     Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Energy Efficient Ethernet' -RegistryValue '0'
-    Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'DMA Coalescing' -RegistryValue '0'
+    #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'DMA Coalescing' -RegistryValue '0'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Enable PME' -RegistryValue '0' # 1 Needed for WoL?
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Flow Control' -RegistryValue '0'
-    Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Interrupt Moderation' -RegistryValue '0'
-    Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Interrupt Moderation Rate' -RegistryValue '0'
+    #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Interrupt Moderation' -RegistryValue '0'
+    #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Interrupt Moderation Rate' -RegistryValue '0'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'PTP Hardware Timestamp' -RegistryValue '1'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'IPv4 Checksum Offload' -RegistryValue '0'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Large Send Offload (IPv4)' -RegistryValue '0'
@@ -1560,8 +1560,8 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Wake on Magic Packet' -RegistryValue '0'
     Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Wake on Pattern Match' -RegistryValue '0'
     #Set-NetOffloadGlobalSetting -ReceiveSideScaling Enabled
-    Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled
-    Set-NetAdapterRss -Name '*Ethernet*' -Profile 'NUMAStatic' -BaseProcessorNumber 4 -MaxProcessorNumber 6 -NumberOfReceiveQueues 2
+    #Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled
+    #Set-NetAdapterRss -Name '*Ethernet*' -Profile 'NUMAStatic' -BaseProcessorNumber 2 -MaxProcessorNumber 4 -NumberOfReceiveQueues 2
     }
 
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
@@ -1670,29 +1670,29 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
 
     # Set Interrupt Affinity (Intel XHCI Controller)
-    $InterruptAffinity = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'Affinity Policy' -and $_.Name -match 'VEN_8086&DEV_A36D' }
-    ForEach ($item in $InterruptAffinity) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'DevicePolicy' -Value 4 -Force; Set-ItemProperty -Path $path -Name 'AssignmentSetOverride' -Type Binary -Value ([byte[]](0x02)) -Force }
+    #$InterruptAffinity = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'Affinity Policy' -and $_.Name -match 'VEN_8086&DEV_A36D' }
+    #ForEach ($item in $InterruptAffinity) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'DevicePolicy' -Value 4 -Force; Set-ItemProperty -Path $path -Name 'AssignmentSetOverride' -Type Binary -Value ([byte[]](0x02)) -Force }
 
     # Set Interrupt Affinity (Asmedia XHCI Controller)
     #$InterruptAffinity = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'Affinity Policy' -and $_.Name -match 'VEN_1B21&DEV_2142' }
     #ForEach ($item in $InterruptAffinity) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'DevicePolicy' -Value 4 -Force; Set-ItemProperty -Path $path -Name 'AssignmentSetOverride' -Type Binary -Value ([byte[]](0x02)) -Force }
 
     # Set Interrupt Affinity (Nvidia)
-    $InterruptAffinity = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'Affinity Policy' -and $_.Name -match 'VEN_10DE&DEV_1E81' }
-    ForEach ($item in $InterruptAffinity) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'DevicePolicy' -Value 4 -Force; Set-ItemProperty -Path $path -Name 'AssignmentSetOverride' -Type Binary -Value ([byte[]](0x04)) -Force }
+    #$InterruptAffinity = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'Affinity Policy' -and $_.Name -match 'VEN_10DE&DEV_1E81' }
+    #ForEach ($item in $InterruptAffinity) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'DevicePolicy' -Value 4 -Force; Set-ItemProperty -Path $path -Name 'AssignmentSetOverride' -Type Binary -Value ([byte[]](0x02)) -Force }
 
     # Set Interrupt Affinity (Intel RST)
-    $InterruptAffinity = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'Affinity Policy' -and $_.Name -match 'VEN_8086&DEV_2822' }
-    ForEach ($item in $InterruptAffinity) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'DevicePolicy' -Value 4 -Force; Set-ItemProperty -Path $path -Name 'AssignmentSetOverride' -Type Binary -Value ([byte[]](0x08)) -Force }
+    #$InterruptAffinity = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'Affinity Policy' -and $_.Name -match 'VEN_8086&DEV_2822' }
+    #ForEach ($item in $InterruptAffinity) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'DevicePolicy' -Value 4 -Force; Set-ItemProperty -Path $path -Name 'AssignmentSetOverride' -Type Binary -Value ([byte[]](0x08)) -Force }
 
     # Create MSISupported key for Nvidia Geforce 2080 Super as it doesn't exist.
-    $MSIMode = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.Name -match 'VEN_10DE&DEV_1E81' -and $_.PSChildName -match 'Interrupt Management' }
-    ForEach ($item in $MSIMode) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; New-Item -Path $path -Name 'MessageSignaledInterruptProperties' -Force; Set-ItemProperty -Path $path\MessageSignaledInterruptProperties -Name 'MSISupported' -Type Dword -Value 1 -Force }
+    #$MSIMode = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.Name -match 'VEN_10DE&DEV_1E81' -and $_.PSChildName -match 'Interrupt Management' }
+    #ForEach ($item in $MSIMode) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; New-Item -Path $path -Name 'MessageSignaledInterruptProperties' -Force; Set-ItemProperty -Path $path\MessageSignaledInterruptProperties -Name 'MSISupported' -Type Dword -Value 1 -Force }
 
     # (WARNING: Needs to be set according to amount of RSS queues+1). 
     # Set MSI Message Limit (Intel Ethernet I210-T1 Gbe NIC)
-    $MSIMessageLimit = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'MessageSignaledInterruptProperties' -and $_.Name -match 'VEN_8086&DEV_1533' }
-    ForEach ($item in $MSIMessageLimit) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'MessageNumberLimit' -Value 3 -Force }
+    #$MSIMessageLimit = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'MessageSignaledInterruptProperties' -and $_.Name -match 'VEN_8086&DEV_1533' }
+    #ForEach ($item in $MSIMessageLimit) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'MessageNumberLimit' -Value 3 -Force }
 
     # Disable Unnecessary Devices (Nvidia USB 3.1 Controller, Nvidia DisplayPort HD Audio, etc)
     Disable-PnpDevice -InstanceId "PCI\VEN_10DE&DEV_10F8&SUBSYS_3FE91458&REV_A1\4&50A803F&0&0108" -confirm:$false
@@ -1742,8 +1742,8 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     }
 
 # Disable Line-based Interrupt Emulation on devices where 'MSISupported' key exist. (Mostly applies to In-box HD Audio driver on most platforms)
-$MSIMode = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 | Where-Object { $_.PSChildName -Like 'MessageSignaledInterruptProperties' }
-ForEach ($item in $MSIMode) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'MSISupported' -Value 1 -Force }
+#$MSIMode = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 | Where-Object { $_.PSChildName -Like 'MessageSignaledInterruptProperties' }
+#ForEach ($item in $MSIMode) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'MSISupported' -Value 1 -Force }
 
 # Change Mouse/Keyboard Event Buffer Size
 #$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }

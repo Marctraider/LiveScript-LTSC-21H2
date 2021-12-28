@@ -143,8 +143,14 @@ $integrity = Get-ItemProperty -Path 'HKLM:\SOFTWARE\LiveScript' -Name 'Integrity
 if($integrity.IntegrityVerified -ne 1)
 {
     Write-Host "Verifying Windows integrity" -ForegroundColor Green
-    sfc /scannow
-    New-ItemProperty -Path $Path -Name 'IntegrityVerified' -PropertyType DWord -Value 1 -Force
+
+    Unregister-ScheduledTask -TaskName "Verify Integrity" -Confirm:$false -erroraction 'silentlycontinue'
+    $Sta = New-ScheduledTaskAction -Execute "cmd" -Argument '/c sfc /scannow && schtasks /delete /tn "Verify Integrity" /f'
+    $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit '00:00:00'
+    $Sttrig = New-ScheduledTaskTrigger -AtLogOn
+    Register-ScheduledTask "Verify Integrity" -Action $Sta -Settings $Stset -Trigger $Sttrig
+
+    New-ItemProperty -Path "HKLM:\SOFTWARE\LiveScript" -Name 'IntegrityVerified' -PropertyType DWord -Value 1 -Force
 }
 
 
