@@ -59,9 +59,11 @@ Register-WMIEvent -Query $query -SourceIdentifier Firewall -Action {
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     $query = "SELECT * FROM __instanceCreationEvent WHERE TargetInstance ISA 'Win32_NTLogEvent' AND TargetInstance.EventCode=107"
     Register-WMIEvent -Query $query -Action { 
-        Start-Sleep -Seconds 5
-        Enable-PnpDevice -InstanceId 'PCI\VEN_13F6&DEV_8788&SUBSYS_85F41043&REV_00\5&30FA9A89&0&2000E0' -Confirm:$False  
-        Start-Sleep -Seconds 5
+        Start-Sleep -Seconds 10
         Start-Service -Name "audiosrv"
+        Start-Sleep -Seconds 10
+        Enable-PnpDevice -InstanceId 'PCI\VEN_13F6&DEV_8788&SUBSYS_85F41043&REV_00\5&19D6E015&0&200009' -Confirm:$False
+        Start-Sleep -Seconds 10
+        Start-Process -NoNewWindow -LoadUserProfile -FilePath "C:\Windows\XonarSwitch.exe" -WorkingDirectory "C:\Windows"
         }
 }

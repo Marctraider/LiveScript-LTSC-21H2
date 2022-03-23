@@ -72,3 +72,4 @@ Only use if you have actual experience with windows and know how to minimize ris
 ## Notes
 - Unable to disable Tamper protection through script on some systems (i.e. vmware?), but does work manually through UI. (Requires more investigation on what's causing this)
 - Use MarkC mouse acceleration curve generator for perfect 1:1 pixel movement on screen DPI other than 100% (Otherwise, disabling enhance mouse pointer is sufficient)
+- Enable 'wuauserv' (Windows Update) service in order to apply cumulative updates. (Will be disabled again after re-running script after applying an update)

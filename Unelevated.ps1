@@ -43,11 +43,18 @@ cd ..\..
 # Custom Tasks
 Write-Host "Generating Custom Tasks" -ForegroundColor Green
 
+Unregister-ScheduledTask -TaskName "Group Policy Update" -Confirm:$false -erroraction 'silentlycontinue'
+$Sta = New-ScheduledTaskAction -Execute "gpupdate" -Argument "/force"
+$Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit '00:00:00'
+$Sttrig = New-ScheduledTaskTrigger -AtStartUp
+$principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+Register-ScheduledTask "Group Policy Update" -Action $Sta -Settings $Stset -Trigger $Sttrig -Principal $principal -Description 'Update Group Policy, required for QoS rules to apply properly.'
+
 Unregister-ScheduledTask -TaskName "State" -Confirm:$false -erroraction 'silentlycontinue'
 $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoExit -WindowStyle Hidden -File C:\Windows\Scripts\State.ps1"
 $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit '00:00:00'
 $Sttrig = New-ScheduledTaskTrigger -AtLogOn
-Register-ScheduledTask "State" -Action $Sta -Settings $Stset -Trigger $Sttrig
+Register-ScheduledTask "State" -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Monitor various system changes.'
 
 Unregister-ScheduledTask -TaskName ".NET Assembly Compiler" -Confirm:$false -erroraction 'silentlycontinue'
 $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument '-NonInteractive -WindowStyle Hidden "C:\Windows\Microsoft.NET\Framework\v4.0.30319\ngen.exe ExecuteQueuedItems; C:\Windows\Microsoft.NET\Framework64\v4.0.30319\ngen.exe ExecuteQueuedItems"'
@@ -59,19 +66,19 @@ Unregister-ScheduledTask -TaskName "Registry Backup" -Confirm:$false -erroractio
 $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument '-NonInteractive -WindowStyle Hidden -Command "REG SAVE HKLM\SOFTWARE C:\Windows\System32\config\RegBack\SOFTWARE /Y; REG SAVE HKLM\SYSTEM C:\Windows\System32\config\RegBack\SYSTEM /Y; REG SAVE HKLM\SECURITY C:\Windows\System32\config\RegBack\SECURITY /Y; REG SAVE HKLM\SAM C:\Windows\System32\config\RegBack\SAM /Y; REG SAVE HKU\.DEFAULT C:\Windows\System32\config\RegBack\DEFAULT /Y; REG SAVE HKCU C:\Windows\System32\config\RegBack\NTUSER.DAT /Y; REG SAVE HKCU\Software\Classes C:\Windows\System32\config\RegBack\USRCLASS.DAT /Y; REG SAVE HKLM\BCD00000000 C:\Windows\System32\config\RegBack\BCD /Y" -WorkingDirectory "C:\Windows\System32\config"'
 $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit '00:00:00'
 $Sttrig = New-ScheduledTaskTrigger -AtLogOn
-Register-ScheduledTask "Registry Backup" -Action $Sta -Settings $Stset -Trigger $Sttrig
+Register-ScheduledTask "Registry Backup" -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Backup registry after each logon.'
 
 Unregister-ScheduledTask -TaskName "Run" -Confirm:$false -erroraction 'silentlycontinue'
 $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument '-NonInteractive -WindowStyle Hidden -File C:\Windows\Scripts\Run.ps1'
 $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit '00:00:00'
 $Sttrig = New-ScheduledTaskTrigger -AtLogOn
-Register-ScheduledTask "Run" -Action $Sta -Settings $Stset -Trigger $Sttrig
+Register-ScheduledTask "Run" -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Run various commands at logon.'
 
 Unregister-ScheduledTask -TaskName "Update" -Confirm:$false -erroraction 'silentlycontinue'
 $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument '-NonInteractive -WindowStyle Hidden -File C:\Windows\Scripts\Update.ps1' -WorkingDirectory 'C:\Windows\System32'
 $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -RunOnlyIfNetworkAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit '00:00:00'
 $Sttrig = New-ScheduledTaskTrigger -AtLogOn
-Register-ScheduledTask "Update" -Action $Sta -Settings $Stset -Trigger $Sttrig 
+Register-ScheduledTask "Update" -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Update Certificate store, hosts file, etc.'
 
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12' -or $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
     Unregister-ScheduledTask -TaskName MTHaxTool -Confirm:$false -erroraction 'silentlycontinue'
@@ -79,7 +86,7 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12' -or $mod
     $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -ExecutionTimeLimit '00:00:00'
     $Stset.Priority = 4 # Default priority for tasks is 'Below Normal' which is troublesome as all the child processes AHK spawns consequently start at the same priority level rather than 'Normal'.
     $Sttrig = New-ScheduledTaskTrigger -AtLogOn
-    Register-ScheduledTask MTHaxTool -Action $Sta -Settings $Stset -Trigger $Sttrig
+    Register-ScheduledTask MTHaxTool -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Start AHK Script.'
     }
 
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
@@ -87,7 +94,7 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoExit -WindowStyle Hidden -File C:\Windows\Scripts\Share.ps1"
     $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit '00:00:00'
     $Sttrig = New-ScheduledTaskTrigger -AtLogOn
-    Register-ScheduledTask "Share" -Action $Sta -Settings $Stset -Trigger $Sttrig
+    Register-ScheduledTask "Share" -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Share $Admin Drives.'
     }
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') 
     {
@@ -95,7 +102,7 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 
     $Sta = New-ScheduledTaskAction -Execute "cmd" -Argument '/c for /R "C:\Users\Administrator" %f in (*.exe) do reg add "HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" /v "%f" /f /t REG_SZ /d "~ HIGHDPIAWARE"'
     $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -DontStopIfGoingOnBatteries -AllowStartIfOnBatteries -ExecutionTimeLimit '00:00:00'
     $Sttrig = New-ScheduledTaskTrigger -AtLogOn
-    Register-ScheduledTask HighDPIAware -Action $Sta -Settings $Stset -Trigger $Sttrig
+    Register-ScheduledTask HighDPIAware -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Scan and apply high DPI flag on executables.'
     }
 
 # Install user-space applications

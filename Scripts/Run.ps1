@@ -7,5 +7,5 @@ Remove-NetQosPolicy -Name "Bypass" -Force
 
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
 Start-Process -NoNewWindow -LoadUserProfile -FilePath "C:\Windows\XonarSwitch.exe" -WorkingDirectory "C:\Windows"
-Start-Process -NoNewWindow -LoadUserProfile -FilePath "C:\Windows\CEE 0.3.39\CorsairEffectsEngine.exe" -WorkingDirectory "C:\Windows\CEE 0.3.39"
+#Start-Process -NoNewWindow -LoadUserProfile -FilePath "C:\Windows\CEE 0.3.39\CorsairEffectsEngine.exe" -WorkingDirectory "C:\Windows\CEE 0.3.39"
 }

@@ -1,23 +1,28 @@
 $FileName = [io.path]::GetFileName("$($args[0])")
+#$FileNameWithoutExtension = [io.path]::GetFileNameWithoutExtension("$($args[0])")
 
-# Security/Performance
+# Default/Security/Performance
 if ($args[1] -like 'PerformanceMode') {
 $Path = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$($FileName)"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
 New-ItemProperty -LiteralPath $Path -Name "MitigationOptions" -PropertyType Binary -Value ([byte[]](0x22,0x22,0x22,0x00,0x20,0x02,0x00,0x00,0x00,0x02,0x00,0x00,0x00,0x00,0x00,0x00)) -Force
-#New-ItemProperty -LiteralPath $Path -Name "UseLargePages" -PropertyType Dword -Value 1 -Force
+Remove-NetQosPolicy -Name "$($FileName)" -Confirm:$False -ea SilentlyContinue
+New-NetQosPolicy -Name "$($FileName)" -DSCPAction 46 -NetworkProfile All -AppPathNameMatchCondition "$($args[0])" -IPProtocolMatchCondition BOTH -ea SilentlyContinue
 Exit
 }
 
 if ($args[1] -like 'NormalMode') {
 $Path = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$($FileName)"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
 New-ItemProperty -LiteralPath $Path -Name "MitigationOptions" -PropertyType Binary -Value ([byte[]](0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Force
-#Remove-ItemProperty -LiteralPath "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$($FileName)" -Name UseLargePages -Force -Confirm:$False
+Remove-NetQosPolicy -Name "$($FileName)" -Confirm:$False -ea SilentlyContinue
+New-NetQosPolicy -Name "$($FileName)" -DSCPAction 4 -NetworkProfile All -AppPathNameMatchCondition "$($args[0])" -IPProtocolMatchCondition BOTH -ea SilentlyContinue
 Exit
 }
 
 if ($args[1] -like 'SecurityMode') {
 $Path = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$($FileName)"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
-New-ItemProperty -LiteralPath $Path -Name "MitigationOptions" -PropertyType Binary -Value ([byte[]](0x11,0x11,0x21,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Force
+New-ItemProperty -LiteralPath $Path -Name "MitigationOptions" -PropertyType Binary -Value ([byte[]](0x11,0x01,0x11,0x01,0x01,0x01,0x11,0x01,0x10,0x01,0x00,0x00,0x00,0x10,0x00,0x30)) -Force
+Remove-NetQosPolicy -Name "$($FileName)" -Confirm:$False -ea SilentlyContinue
+New-NetQosPolicy -Name "$($FileName)" -DSCPAction 4 -NetworkProfile All -AppPathNameMatchCondition "$($args[0])" -IPProtocolMatchCondition BOTH -ea SilentlyContinue
 Exit
 }
 
@@ -59,7 +64,7 @@ Exit
 }
 
 if ($args[1] -like 'BypassTunnel') {
-New-NetQosPolicy -Name "Bypass" -DSCPAction 46 -NetworkProfile All -AppPathNameMatchCondition "$($Args[0])" -IPProtocolMatchCondition BOTH
+New-NetQosPolicy -Name "Bypass" -Precedence 255 -DSCPAction 40 -NetworkProfile All -AppPathNameMatchCondition "$($Args[0])" -IPProtocolMatchCondition BOTH -ea SilentlyContinue
 Exit
 }
 
@@ -90,49 +95,65 @@ if ($args[1] -like 'AllowInboundLocalAllTCP'){ New-NetFirewallRule -DisplayName 
 if ($args[1] -like 'AllowInboundLocalAll'){ New-NetFirewallRule -DisplayName "Allow Local: $FileName" -Program $args[0] -Direction In -Protocol Any -RemoteAddress LocalSubnet -Action Allow }
 if ($args[1] -like 'AllowOutboundLocalAll'){ New-NetFirewallRule -DisplayName "Allow Local: $FileName" -Program $args[0] -Direction Out -Protocol Any -RemoteAddress LocalSubnet -Action Allow }
 if ($args[1] -like 'AllowInboundInternetAll'){ New-NetFirewallRule -DisplayName "Allow Internet: $FileName" -Program $args[0] -Direction In -Protocol Any -RemoteAddress Any -Action Allow }
+
 if ($args[1] -like 'CustomFirewallRule'){
-Write-Host "(Can leave Port/Address blank for 'Any')" -ForegroundColor DarkGreen
-Write-Host "Firewall Rule Name" -ForegroundColor Green
-$DisplayName = Read-Host "Name"
-Write-Host "Firewall Rule Direction" -ForegroundColor Green
-$Direction = Read-Host "Inbound or Outbound"
-Write-Host "Firewall Rule Protocol" -ForegroundColor Green
-$Protocol = Read-Host "Protocol"
-Write-Host "Firewall Rule Remote Port" -ForegroundColor Green
-$RemotePort = Read-Host "Remote Port"
-Write-Host "Firewall Rule Local Port" -ForegroundColor Green
-$LocalPort = Read-Host "Local Port"
-Write-Host "Firewall Rule Remote Address (Any, LocalSubnet, Internet, Specific)" -ForegroundColor Green
-$RemoteAddress = Read-Host "Remote Address"
-Write-Host "Firewall Rule Local Address (Any, LocalSubnet, Internet, Specific)" -ForegroundColor Green
-$LocalAddress = Read-Host "Local Address"
-Write-Host "Firewall Rule Temporary? (Leave Empty for Permanent)" -ForegroundColor Green
-$Temporary = Read-Host "Temporary"
-if($Temporary -ne "") {
-    Write-Host "Firewall Rule Temporary Minutes?" -ForegroundColor Green
-    $TemporaryMinutes = Read-Host "Temporary Minutes"
-    $Temp = " (Temporary)"
-    Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -WindowStyle Hidden -NoLogo -NonInteractive -File C:\Windows\Scripts\TemporaryFirewallRule.ps1 -Param1 $TemporaryMinutes"
+    Write-Host "(Can leave Port/Address blank for 'Any')" -ForegroundColor DarkGreen
+    Write-Host "Firewall Rule Name" -ForegroundColor Green
+    $DisplayName = Read-Host "Name"
+    Write-Host "Firewall Rule Direction" -ForegroundColor Green
+    $Direction = Read-Host "Inbound or Outbound"
+    Write-Host "Firewall Rule Protocol" -ForegroundColor Green
+    $Protocol = Read-Host "Protocol"
+    Write-Host "Firewall Rule Remote Port" -ForegroundColor Green
+    $RemotePort = Read-Host "Remote Port"
+    Write-Host "Firewall Rule Local Port" -ForegroundColor Green
+    $LocalPort = Read-Host "Local Port"
+    Write-Host "Firewall Rule Remote Address (Any, LocalSubnet, Internet, Specific)" -ForegroundColor Green
+    $RemoteAddress = Read-Host "Remote Address"
+    Write-Host "Firewall Rule Local Address (Any, LocalSubnet, Internet, Specific)" -ForegroundColor Green
+    $LocalAddress = Read-Host "Local Address"
+    Write-Host "Firewall Rule Temporary? (Leave Empty for Permanent)" -ForegroundColor Green
+    $Temporary = Read-Host "Temporary"
+    if($Temporary -ne "") {
+        Write-Host "Firewall Rule Temporary Minutes?" -ForegroundColor Green
+        $TemporaryMinutes = Read-Host "Temporary Minutes"
+        $Temp = " (Temporary)"
+        Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -WindowStyle Hidden -NoLogo -NonInteractive -File C:\Windows\Scripts\TemporaryFirewallRule.ps1 -Param1 $TemporaryMinutes"
+        }
+    
+    if ($RemotePort -eq ''){ $RemotePort = 'Any' } 
+    if ($LocalPort -eq ''){ $LocalPort = 'Any' }
+    if ($RemoteAddress -eq ''){ $RemoteAddress = 'Any' }
+    if ($LocalAddress -eq ''){ $LocalAddress = 'Any' }
+    
+    New-NetFirewallRule -DisplayName "Allow Custom: $($FileName) ($DisplayName)$Temp" -Program $args[0] -Direction $Direction -Protocol $Protocol -RemotePort $RemotePort -LocalPort $LocalPort `
+     -RemoteAddress $RemoteAddress -LocalAddress $LocalAddress -Action Allow
+    
+    if($?)
+        {
+        Write-Host "Rule Successfully Created." -ForegroundColor Green
+        Sleep -Seconds 3
+        Exit
+        }
+    else
+        {
+        Write-Host "Failed to Create Rule!" -ForegroundColor Red
+        Read-Host “Press ENTER to continue...”
+        Exit
+        }
     }
 
-if ($RemotePort -eq ''){ $RemotePort = 'Any' } 
-if ($LocalPort -eq ''){ $LocalPort = 'Any' }
-if ($RemoteAddress -eq ''){ $RemoteAddress = 'Any' }
-if ($LocalAddress -eq ''){ $LocalAddress = 'Any' }
-
-New-NetFirewallRule -DisplayName "Allow Custom: $DisplayName$Temp" -Program $args[0] -Direction $Direction -Protocol $Protocol -RemotePort $RemotePort -LocalPort $LocalPort `
- -RemoteAddress $RemoteAddress -LocalAddress $LocalAddress -Action Allow
-
-if($?)
-    {
-    Write-Host "Rule Successfully Created." -ForegroundColor Green
+if ($args[1] -like 'RemoveRule'){
+    Remove-NetFirewallRule -DisplayName "*$($FileName)*"
+    Remove-NetQosPolicy -Name "$($FileName)" -Confirm:$False
+    Write-Host "Rules Successfully Removed." -ForegroundColor Green
     Sleep -Seconds 3
-    Exit
     }
-else
-    {
-    Write-Host "Failed to Create Rule!" -ForegroundColor Red
-    Read-Host “Press ENTER to continue...”
-    Exit
-    }
-}
+
+if ($args[1] -like 'TemporaryRule'){
+    Write-Host "How many minutes?" -ForegroundColor Green
+            $TemporaryMinutes = Read-Host "Temporary Minutes"
+            $Temp = " (Temporary)"
+            New-NetFirewallRule -DisplayName "Allow Internet: $FileName$Temp" -Program $args[0] -Direction Out -Protocol Any -RemoteAddress Any -Action Allow
+            Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -WindowStyle Hidden -NoLogo -NonInteractive -File C:\Windows\Scripts\TemporaryFirewallRule.ps1 -Param1 $TemporaryMinutes"
+        }
