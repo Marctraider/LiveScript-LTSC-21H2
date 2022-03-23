@@ -76,7 +76,9 @@ Only use if you have actual experience with windows and know how to minimize ris
 - Enable 'wuauserv' (Windows Update) service in order to apply cumulative updates. (Will be disabled again after re-running script after applying an update)
 
 ## DSCP Markings
-DSCP values can be useful for allowing only data through the router on home network for extra security layer, or to put router in performance mode (Gaming) by detecting markings and act upon it, or to route data through some specified network interface.
+DSCP values can be useful for allowing only data through the router on home network for extra security layer, or to put router in performance mode (Gaming) by detecting markings and act upon it, or to route data through some specified network interface.<br>
+If you have such a networking system in place, you can also install Windows 10 without being afraid of having to pull your network cable each time because nothing will get through.<br>
+<br>
 Example:<br/>
 
 Allow clients to bypass tunnel with dscp 40:<br/>
