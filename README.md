@@ -28,11 +28,12 @@ Only use if you have actual experience with windows and know how to minimize ris
 
 ###### Context Menu:
 
-- Set mitigation policy per executable, either default (performance) or security. (Prerequisite for allowing firewall rule to apply)
+- Set mitigation policy per executable, either default (OS default), Performance or security. (Prerequisite for allowing firewall rule to apply)
+	Additionally, with default or security, DSCP value 4 is applied to outgoing data of these executables. For performance, value 46 is applied.
 - Set firewall rules per executable (Either predefined for ease, All Incoming, All Outgoing, All incoming local, All outgoing local, 80/443/TCP/UDP or custom rule)
 - Take ownership on files/folders
 - Classic customize (Windows 7)
-- Bypass tunnel (Basically apply specific DSCP markings to executable packets going out, so you could have router support and route specific executables over a VPN or whatever)
+- Bypass tunnel (Basically apply specific DSCP markings to executable packets going out, so you could have router support and route specific executables over a VPN or whatever, sets DSCP 40, and precedes every other applied QoS marking.
 - Disable DPI Scaling
 - GPU Adapter preference
 - Add advanced system settings to right click on 'My PC'
@@ -73,3 +74,4 @@ Only use if you have actual experience with windows and know how to minimize ris
 - Unable to disable Tamper protection through script on some systems (i.e. vmware?), but does work manually through UI. (Requires more investigation on what's causing this)
 - Use MarkC mouse acceleration curve generator for perfect 1:1 pixel movement on screen DPI other than 100% (Otherwise, disabling enhance mouse pointer is sufficient)
 - Enable 'wuauserv' (Windows Update) service in order to apply cumulative updates. (Will be disabled again after re-running script after applying an update)
+- DSCP values can be useful for; Allowing only data through the router on home network with iptables for extra security layer, or to put router in performance mode (Gaming), or to route data through some specified network interface.
