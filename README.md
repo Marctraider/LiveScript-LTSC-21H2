@@ -77,13 +77,15 @@ Only use if you have actual experience with windows and know how to minimize ris
 
 ## DSCP Markings
 DSCP values can be useful for allowing only data through the router on home network for extra security layer, or to put router in performance mode (Gaming) by detecting markings and act upon it, or to route data through some specified network interface.
-
 Example:
 
-# Allow clients to bypass tunnel with dscp 40
+Allow clients to bypass tunnel with dscp 40:
+
 -A POSTROUTING -s 192.168.1.0/24 -o eth1 -p tcp -m dscp --dscp 40 -j MASQUERADE
 -A POSTROUTING -s 192.168.1.0/24 -o eth1 -p udp -m dscp --dscp 40 -j MASQUERADE
-# Allow LAN to Tunnel
+
+Allow LAN to Tunnel:
+
 -A POSTROUTING -s 192.168.1.0/24 -o wg0 -p tcp -m dscp --dscp 4 -j MASQUERADE
 -A POSTROUTING -s 192.168.1.0/24 -o wg0 -p udp -m dscp --dscp 4 -j MASQUERADE
 -A POSTROUTING -s 192.168.1.0/24 -o wg0 -p tcp -m dscp --dscp 40 -j MASQUERADE
