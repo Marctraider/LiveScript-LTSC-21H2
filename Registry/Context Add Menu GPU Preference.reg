@@ -2,7 +2,7 @@ Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\exefile\shell\GPUPref]
 @=""
-"MUIVerb"="GPU Preference"
+"MUIVerb"="Graphics preference"
 "icon"=""
 "subcommands"=""
 
@@ -13,7 +13,7 @@ Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\exefile\shell\GPUPref\Shell\Powersaving]
 @=""
-"MUIVerb"="Power saving"
+"MUIVerb"="Powersaving"
 "icon"=""
 
 [HKEY_CLASSES_ROOT\exefile\shell\GPUPref\Shell\Powersaving\command]

@@ -2,7 +2,7 @@ Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\exefile\shell\BlockExe]
 @=""
-"MUIVerb"="Block Executable"
+"MUIVerb"="Block executable"
 "icon"=""
 "subcommands"=""
 
@@ -13,7 +13,7 @@ Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\exefile\shell\BlockExe\Shell\BlockExe]
 @=""
-"MUIVerb"="Block Executable"
+"MUIVerb"="Block executable"
 "icon"=""
 
 [HKEY_CLASSES_ROOT\exefile\shell\BlockExe\Shell\BlockExe\command]
@@ -23,7 +23,7 @@ Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\exefile\shell\BlockExe\Shell\UnblockExe]
 @=""
-"MUIVerb"="Unblock Executable"
+"MUIVerb"="Unblock executable"
 "icon"=""
 
 [HKEY_CLASSES_ROOT\exefile\shell\BlockExe\Shell\UnblockExe\command]

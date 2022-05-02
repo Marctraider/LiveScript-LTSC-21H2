@@ -2,7 +2,7 @@ Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\exefile\shell\BypassTunnel]
 @=""
-"MUIVerb"="Bypass Tunnel (DSCP)"
+"MUIVerb"="Bypass tunnel"
 "icon"=""
 "subcommands"=""
 
@@ -13,7 +13,7 @@ Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\exefile\shell\BypassTunnel\Shell\BypassTunnel]
 @=""
-"MUIVerb"="Bypass Tunnel"
+"MUIVerb"="Bypass tunnel"
 "icon"=""
 
 [HKEY_CLASSES_ROOT\exefile\shell\BypassTunnel\Shell\BypassTunnel\command]
@@ -22,7 +22,7 @@ Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\exefile\shell\BypassTunnel\Shell\DefaultTunnel]
 @=""
-"MUIVerb"="Default Tunnel"
+"MUIVerb"="Default tunnel"
 "icon"=""
 
 [HKEY_CLASSES_ROOT\exefile\shell\BypassTunnel\Shell\DefaultTunnel\command]

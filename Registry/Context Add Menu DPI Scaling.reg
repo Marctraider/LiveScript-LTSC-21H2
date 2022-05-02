@@ -1,28 +1,50 @@
 Windows Registry Editor Version 5.00
 
-[-HKEY_CLASSES_ROOT\exefile\shell\disabledpi]
+[HKEY_CLASSES_ROOT\exefile\shell\Dpi]
+@=""
+"MUIVerb"="DPI scaling"
+"icon"=""
+"subcommands"=""
 
-[HKEY_CLASSES_ROOT\exefile\shell\disabledpi]
-@="Disable DP&I Scaling"
 
-[HKEY_CLASSES_ROOT\exefile\shell\disabledpi\command]
-@="cmd /c @reg add \"HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers\" /v \"%1\" /f /t REG_SZ /d \"~ HIGHDPIAWARE\">nul"
-"IsolatedCommand"="cmd /c @reg add \"HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers\" /v \"%1\" /f /t REG_SZ /d \"~ HIGHDPIAWARE\">nul"
+[HKEY_CLASSES_ROOT\exefile\shell\Dpi\Shell]
+@=""
 
-[-HKEY_CLASSES_ROOT\Msi.Package\shell\disabledpi]
 
-[HKEY_CLASSES_ROOT\Msi.Package\shell\disabledpi]
-@="Disable DP&I Scaling"
+[HKEY_CLASSES_ROOT\exefile\shell\Dpi\Shell\ DpiDefault]
+@=""
+"MUIVerb"="Remove policy (Default)"
+"icon"=""
 
-[HKEY_CLASSES_ROOT\Msi.Package\shell\disabledpi\command]
-@="cmd /c @reg add \"HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers\" /v \"%1\" /f /t REG_SZ /d \"~ HIGHDPIAWARE\">nul"
-"IsolatedCommand"="cmd /c @reg add \"HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers\" /v \"%1\" /f /t REG_SZ /d \"~ HIGHDPIAWARE\">nul"
+[HKEY_CLASSES_ROOT\exefile\shell\Dpi\Shell\ DpiDefault\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"DpiDefault\""
 
-[-HKEY_CLASSES_ROOT\Directory\shell\disabledpi]
 
-[HKEY_CLASSES_ROOT\Directory\shell\disabledpi]
-@="Disable DP&I Scaling"
 
-[HKEY_CLASSES_ROOT\Directory\shell\disabledpi\command]
-@="cmd /c @start /min cmd /c for /f \"usebackq delims=\" %%i in (`dir /b /s \"%1\\*.exe\" \"%1\\*.msi\"`) do @reg add \"HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers\" /v \"%%i\" /f /t REG_SZ /d \"~ HIGHDPIAWARE\""
-"IsolatedCommand"="cmd /c @start /min cmd /c for /f \"usebackq delims=\" %%i in (`dir /b /s \"%1\\*.exe\" \"%1\\*.msi\"`) do @reg add \"HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers\" /v \"%%i\" /f /t REG_SZ /d \"~ HIGHDPIAWARE\""
+[HKEY_CLASSES_ROOT\exefile\shell\Dpi\Shell\DpiApplication]
+@=""
+"MUIVerb"="Application"
+"icon"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\Dpi\Shell\DpiApplication\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"DpiApplication\""
+
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\Dpi\Shell\DpiSystem]
+@=""
+"MUIVerb"="System"
+"icon"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\Dpi\Shell\DpiSystem\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"DpiSystem\""
+
+
+
+[HKEY_CLASSES_ROOT\exefile\shell\Dpi\Shell\DpiSystemEnhanced]
+@=""
+"MUIVerb"="System (Enhanced)"
+"icon"=""
+
+[HKEY_CLASSES_ROOT\exefile\shell\Dpi\Shell\DpiSystemEnhanced\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" \"-File\" \"C:\\Windows\\Scripts\\Context.ps1\" \"%1\" \"DpiSystemEnhanced\""

@@ -1,0 +1,7 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\exefile\shell\Unelevated]
+@="Run un-elevated"
+
+[HKEY_CLASSES_ROOT\exefile\shell\Unelevated\command]
+@="runas /trustlevel:0x20000 \"%1\""

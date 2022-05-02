@@ -1,42 +1,140 @@
 $FileName = [io.path]::GetFileName("$($args[0])")
 #$FileNameWithoutExtension = [io.path]::GetFileNameWithoutExtension("$($args[0])")
 
+# QoS rule cannot allow these symbols in name.
+$QoSName = $FileName -replace '[()#]',''
+
 # Default/Security/Performance
 if ($args[1] -like 'PerformanceMode') {
 $Path = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$($FileName)"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
 New-ItemProperty -LiteralPath $Path -Name "MitigationOptions" -PropertyType Binary -Value ([byte[]](0x22,0x22,0x22,0x00,0x20,0x02,0x00,0x00,0x00,0x02,0x00,0x00,0x00,0x00,0x00,0x00)) -Force
-Remove-NetQosPolicy -Name "$($FileName)" -Confirm:$False -ea SilentlyContinue
-New-NetQosPolicy -Name "$($FileName)" -DSCPAction 46 -NetworkProfile All -AppPathNameMatchCondition "$($args[0])" -IPProtocolMatchCondition BOTH -ea SilentlyContinue
+Remove-NetQosPolicy -Name "$($QoSName)" -Confirm:$False -ea SilentlyContinue
+New-NetQosPolicy -Name "$($QoSName)" -DSCPAction 46 -NetworkProfile All -AppPathNameMatchCondition "$($args[0])" -IPProtocolMatchCondition BOTH -ea SilentlyContinue
 Exit
 }
 
 if ($args[1] -like 'NormalMode') {
 $Path = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$($FileName)"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
 New-ItemProperty -LiteralPath $Path -Name "MitigationOptions" -PropertyType Binary -Value ([byte[]](0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Force
-Remove-NetQosPolicy -Name "$($FileName)" -Confirm:$False -ea SilentlyContinue
-New-NetQosPolicy -Name "$($FileName)" -DSCPAction 4 -NetworkProfile All -AppPathNameMatchCondition "$($args[0])" -IPProtocolMatchCondition BOTH -ea SilentlyContinue
+Remove-NetQosPolicy -Name "$($QoSName)" -Confirm:$False -ea SilentlyContinue
+New-NetQosPolicy -Name "$($QoSName)" -DSCPAction 4 -NetworkProfile All -AppPathNameMatchCondition "$($args[0])" -IPProtocolMatchCondition BOTH -ea SilentlyContinue
 Exit
 }
 
 if ($args[1] -like 'SecurityMode') {
 $Path = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$($FileName)"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
-New-ItemProperty -LiteralPath $Path -Name "MitigationOptions" -PropertyType Binary -Value ([byte[]](0x11,0x01,0x11,0x01,0x01,0x01,0x11,0x01,0x10,0x01,0x00,0x00,0x00,0x10,0x00,0x30)) -Force
-Remove-NetQosPolicy -Name "$($FileName)" -Confirm:$False -ea SilentlyContinue
-New-NetQosPolicy -Name "$($FileName)" -DSCPAction 4 -NetworkProfile All -AppPathNameMatchCondition "$($args[0])" -IPProtocolMatchCondition BOTH -ea SilentlyContinue
+New-ItemProperty -LiteralPath $Path -Name "MitigationOptions" -PropertyType Binary -Value ([byte[]](0x11,0x01,0x11,0x01,0x01,0x01,0x11,0x01,0x10,0x00,0x00,0x00,0x00,0x10,0x00,0x30)) -Force
+Remove-NetQosPolicy -Name "$($QoSName)" -Confirm:$False -ea SilentlyContinue
+New-NetQosPolicy -Name "$($QoSName)" -DSCPAction 4 -NetworkProfile All -AppPathNameMatchCondition "$($args[0])" -IPProtocolMatchCondition BOTH -ea SilentlyContinue
 Exit
 }
 
 # Full Screen Optimizations
 if ($args[1] -like 'DisableFSO') {
 $Path = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
-New-ItemProperty -LiteralPath $Path -Name "$($Args[0])" -PropertyType String -Value "~ DISABLEDXMAXIMIZEDWINDOWEDMODE" -Force
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+if ($Value -notmatch 'DISABLEDXMAXIMIZEDWINDOWEDMODE'){
+    if ($Value -match '~') {
+        $NewValue = ($Value + " DISABLEDXMAXIMIZEDWINDOWEDMODE")
+        Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])" -Value $NewValue
+        }
+    else
+        {
+        New-ItemProperty -LiteralPath $Path -Name "$($Args[0])" -PropertyType String -Value "~ DISABLEDXMAXIMIZEDWINDOWEDMODE" -Force
+        }
+    }
 Exit
 }
 
 if ($args[1] -like 'EnableFSO') {
-Remove-ItemProperty -LiteralPath "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" -Name "$($Args[0])" -Force -Confirm:$False
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+$NewValue = $Value -replace " DISABLEDXMAXIMIZEDWINDOWEDMODE"
+Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])" -Value $NewValue
 Exit
 }
+
+# DPI Scaling
+if ($args[1] -like 'DpiDefault') {
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+$NewValue = $Value -replace " GDIDPISCALING DPIUNAWARE" -replace " DPIUNAWARE" -replace " HIGHDPIAWARE"
+Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])" -Value $NewValue
+Exit
+}
+
+if ($args[1] -like 'DpiApplication') {
+$Path = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+$NewValue = $Value -replace " GDIDPISCALING DPIUNAWARE" -replace " DPIUNAWARE" -replace " HIGHDPIAWARE"
+
+if ($NewValue -match '~') {
+    $NewNewValue = ($NewValue + " HIGHDPIAWARE")
+    Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])" -Value $NewNewValue
+    }
+else
+    {
+    New-ItemProperty -LiteralPath $Path -Name "$($Args[0])" -PropertyType String -Value "~ HIGHDPIAWARE" -Force
+    }
+Exit
+}
+
+if ($args[1] -like 'DpiSystem') {
+$Path = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+$NewValue = $Value -replace " GDIDPISCALING DPIUNAWARE" -replace " DPIUNAWARE" -replace " HIGHDPIAWARE"
+
+if ($NewValue -match '~') {
+    $NewNewValue = ($NewValue + " DPIUNAWARE")
+    Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])" -Value $NewNewValue
+    }
+else
+    {
+    New-ItemProperty -LiteralPath $Path -Name "$($Args[0])" -PropertyType String -Value "~ DPIUNAWARE" -Force
+    }
+Exit
+}
+
+if ($args[1] -like 'DpiSystemEnhanced') {
+
+$Path = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+$NewValue = $Value -replace " GDIDPISCALING DPIUNAWARE" -replace " DPIUNAWARE" -replace " HIGHDPIAWARE"
+
+if ($NewValue -match '~') {
+    $NewNewValue = ($NewValue + " GDIDPISCALING DPIUNAWARE")
+    Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])" -Value $NewNewValue
+    }
+else
+    {
+    New-ItemProperty -LiteralPath $Path -Name "$($Args[0])" -PropertyType String -Value "~ GDIDPISCALING DPIUNAWARE" -Force
+    }
+Exit
+}
+
+<# NOT WORKING :-(
+# Unelevated
+if ($args[1] -like 'RunUnelevatedPersistent') {
+$Path = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+if ($Value -notmatch 'RunAsInvoker'){
+    if ($Value -match '~') {
+        $NewValue = ($Value + " RunAsInvoker")
+        Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])" -Value $NewValue
+        }
+    else
+        {
+        New-ItemProperty -LiteralPath $Path -Name "$($Args[0])" -PropertyType String -Value "~ RunAsInvoker" -Force
+        }
+    }
+Exit
+}
+
+if ($args[1] -like 'RemoveUnelevatedPersistent') {
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+$NewValue = $Value -replace " RunAsInvoker"
+Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])" -Value $NewValue
+Exit
+}
+#>
 
 # GPU Preference
 if ($args[1] -like 'Powersaving') {
@@ -145,7 +243,7 @@ if ($args[1] -like 'CustomFirewallRule'){
 
 if ($args[1] -like 'RemoveRule'){
     Remove-NetFirewallRule -DisplayName "*$($FileName)*"
-    Remove-NetQosPolicy -Name "$($FileName)" -Confirm:$False
+    Remove-NetQosPolicy -Name "$($QoSName)" -Confirm:$False
     Write-Host "Rules Successfully Removed." -ForegroundColor Green
     Sleep -Seconds 3
     }

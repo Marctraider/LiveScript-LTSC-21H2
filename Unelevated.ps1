@@ -98,11 +98,13 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     }
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') 
     {
+    <#
     Unregister-ScheduledTask -TaskName HighDPIAware -Confirm:$false -erroraction 'silentlycontinue'
     $Sta = New-ScheduledTaskAction -Execute "cmd" -Argument '/c for /R "C:\Users\Administrator" %f in (*.exe) do reg add "HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" /v "%f" /f /t REG_SZ /d "~ HIGHDPIAWARE"'
     $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -DontStopIfGoingOnBatteries -AllowStartIfOnBatteries -ExecutionTimeLimit '00:00:00'
     $Sttrig = New-ScheduledTaskTrigger -AtLogOn
     Register-ScheduledTask HighDPIAware -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Scan and apply high DPI flag on executables.'
+    #>
     }
 
 # Install user-space applications
@@ -114,8 +116,9 @@ Resources\7z2104-x64\7z2104-x64.exe /S /D="C:\Program Files\7-Zip"
 # Inject Registry Keys
 Write-Host "Import Registry Keys from Files" -ForegroundColor Green
 reg import ".\Registry\Context Add Menu Full Screen Optimizations.reg"
-reg import ".\Registry\Context Add Menu Bypass Tunnel (DSCP).reg"
+reg import ".\Registry\Context Add Menu Bypass Tunnel.reg"
 reg import ".\Registry\Context Add Run As Different User.reg"
+reg import ".\Registry\Context Add Run Unelevated.reg"
 reg import ".\Registry\Context Add Menu GPU Preference.reg"
 reg import ".\Registry\Context Add Menu Advanced System Settings.reg"
 reg import ".\Registry\Restore Windows Photo Viewer.reg"
@@ -136,7 +139,6 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     reg import ".\Registry\XonarSwitch Profiles.reg"
     }
 
-#>
 
 
 # One-shot verification of Windows integrity

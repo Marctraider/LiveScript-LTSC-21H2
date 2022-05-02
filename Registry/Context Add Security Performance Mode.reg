@@ -2,7 +2,7 @@ Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\exefile\shell\SecurityPerformance]
 @=""
-"MUIVerb"="Security and Performance"
+"MUIVerb"="Security and performance"
 "icon"="%SystemRoot%\\system32\\UserAccountControlSettings.exe,0"
 "subcommands"=""
 
@@ -13,7 +13,7 @@ Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\exefile\shell\SecurityPerformance\Shell\Security]
 @=""
-"MUIVerb"="Security Mode"
+"MUIVerb"="Security mode"
 "icon"="%SystemRoot%\\system32\\UserAccountControlSettings.exe,0"
 
 [HKEY_CLASSES_ROOT\exefile\shell\SecurityPerformance\Shell\Security\command]
@@ -22,7 +22,7 @@ Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\exefile\shell\SecurityPerformance\Shell\Normal]
 @=""
-"MUIVerb"="Normal Mode (OS Default)"
+"MUIVerb"="Normal mode (Default)"
 "icon"="%SystemRoot%\\system32\\UserAccountControlSettings.exe,0"
 
 [HKEY_CLASSES_ROOT\exefile\shell\SecurityPerformance\Shell\Normal\command]
@@ -31,7 +31,7 @@ Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\exefile\shell\SecurityPerformance\Shell\Performance]
 @=""
-"MUIVerb"="Performance Mode"
+"MUIVerb"="Performance mode"
 "icon"="%SystemRoot%\\system32\\UserAccountControlSettings.exe,0"
 
 [HKEY_CLASSES_ROOT\exefile\shell\SecurityPerformance\Shell\Performance\command]

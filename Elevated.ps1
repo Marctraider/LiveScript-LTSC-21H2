@@ -38,6 +38,7 @@ Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
 & {Get-NetFirewallRule | Where { $_.DisplayName -notmatch 'Allow *' } | Remove-NetFirewallRule;}
 Remove-NetFirewallRule -DisplayName 'Script Generated*'
 New-NetFirewallRule -Display 'Script Generated: Router' -Direction Outbound -Protocol Any -RemoteAddress 192.168.1.1 -Action Allow
+New-NetFirewallRule -Display 'Script Generated: Wifi Router' -Direction Outbound -Protocol Any -RemoteAddress 192.168.1.250 -Action Allow
 New-NetFirewallRule -Display 'Script Generated: Redundant' -Direction Outbound -Protocol Any -RemoteAddress ("89.39.105.32", "10.0.0.1") -Action Allow
 New-NetFirewallRule -Display 'Script Generated: IGMP (IGMP-In)' -Direction Inbound -Protocol 2 -Program 'System' -Action Allow
 New-NetFirewallRule -Display 'Script Generated: IGMP (IGMP-Out)' -Direction Outbound -Protocol 2 -Program 'System' -Action Allow
@@ -61,7 +62,7 @@ New-NetFirewallRule -Display 'Script Generated: RDP (UDP-Out)' -Direction Outbou
 New-NetFirewallRule -Display 'Script Generated: RDP (TCP-In)' -Direction Inbound -Protocol TCP -LocalPort 11139 -RemoteAddress ("LocalSubnet", "10.0.1.0-10.0.1.255") -Program 'C:\Windows\System32\svchost.exe' -Action Allow
 New-NetFirewallRule -Display 'Script Generated: RDP (UDP-In)' -Direction Inbound -Protocol UDP -LocalPort 11139 -RemoteAddress ("LocalSubnet", "10.0.1.0-10.0.1.255") -Program 'C:\Windows\System32\svchost.exe' -Action Allow
 New-NetFirewallRule -Display 'Script Generated: Echo Protocol (UDP-In)' -Direction Inbound -Protocol UDP -LocalPort 7 -RemoteAddress LocalSubnet -Program 'C:\Windows\System32\TCPSVCS.EXE' -Action Allow
-New-NetFirewallRule -Display 'Script Generated: NCSI' -Direction Outbound -Program 'C:\Windows\System32\svchost.exe' -Action Allow -Service 'NlaSvc'
+#New-NetFirewallRule -Display 'Script Generated: NCSI' -Direction Outbound -Program 'C:\Windows\System32\svchost.exe' -Action Allow -Service 'NlaSvc'
 New-NetFirewallRule -Display 'Script Generated: NTP (UDP-Out)' -Direction Outbound -Action Allow -Protocol UDP -RemotePort 123 -Program 'C:\Windows\System32\svchost.exe' -Service 'W32Time'
 New-NetFirewallRule -Display 'Script Generated: Certutil' -Direction Outbound -Action Allow -Protocol TCP -RemotePort 80 -Program 'C:\Windows\System32\certutil.exe'
 New-NetFirewallRule -Display 'Script Generated: Powershell (TCP-Out-80)' -Direction Outbound -Action Allow -Protocol TCP -RemotePort 80 -Program 'C:\Windows\System32\windowspowershell\v1.0\powershell.exe'
@@ -85,13 +86,14 @@ New-NetQosPolicy -Name "Script Generated: certutil.exe" -NetworkProfile All -App
 New-NetQosPolicy -Name "Script Generated: powershell.exe" -NetworkProfile All -AppPathNameMatchCondition "C:\Windows\System32\windowspowershell\v1.0\powershell.exe" -IPProtocolMatchCondition BOTH -DSCPAction 4 -ea SilentlyContinue
 New-NetQosPolicy -Name "Script Generated: DNS" -NetworkProfile All -IPDstPortMatchCondition 53 -IPProtocolMatchCondition BOTH -DSCPAction 4 -ea SilentlyContinue
 New-NetQosPolicy -Name "Script Generated: NTP" -NetworkProfile All -IPDstPortMatchCondition 123 -IPProtocolMatchCondition UDP -DSCPAction 4 -ea SilentlyContinue
-New-NetQosPolicy -Name "Script Generated: NCSI" -NetworkProfile All -URIMatchCondition 'http://www.msftncsi' -URIRecursiveMatchCondition 1 -DSCPAction 4 -ea SilentlyContinue
-New-NetQosPolicy -Name "Script Generated: NCSI" -NetworkProfile All -IPDstPrefixMatchCondition '23.62.99.75' -DSCPAction 4 -ea SilentlyContinue
+#New-NetQosPolicy -Name "Script Generated: NCSI" -NetworkProfile All -URIMatchCondition 'http://www.msftconnecttest.com/connecttest.txt' -DSCPAction 4 -ea SilentlyContinue
+#New-NetQosPolicy -Name "Script Generated: NCSI" -NetworkProfile All -IPDstPrefixMatchCondition '23.62.99.75' -DSCPAction 4 -ea SilentlyContinue
+#New-NetQosPolicy -Name "Script Generated: NCSI" -NetworkProfile All -IPDstPrefixMatchCondition '131.107.255.255' -DSCPAction 4 -ea SilentlyContinue
 
 <# Change Registry Permissions #>
 Write-Host "Changing Registry Permissions" -ForegroundColor Green
-& .\SetACL.exe -on "HKLM\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -ot reg -actn setowner -ownr "n:Administrators" -rec Yes
-& .\SetACL.exe -on "HKLM\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -ot reg -actn ace -ace "n:Administrators;p:full" -rec Yes
+#& .\SetACL.exe -on "HKLM\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -ot reg -actn setowner -ownr "n:Administrators" -rec Yes
+#& .\SetACL.exe -on "HKLM\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -ot reg -actn ace -ace "n:Administrators;p:full" -rec Yes
 & .\SetACL.exe -on "HKEY_CLASSES_ROOT\Drive\shell\Powershell" -ot reg -actn setowner -ownr "n:Administrators" -rec Yes
 & .\SetACL.exe -on "HKEY_CLASSES_ROOT\Drive\shell\Powershell" -ot reg -actn ace -ace "n:Administrators;p:full" -rec Yes
 & .\SetACL.exe -on "HKEY_CLASSES_ROOT\Directory\Background\shell\Powershell" -ot reg -actn setowner -ownr "n:Administrators" -rec Yes
@@ -106,6 +108,7 @@ Write-Host "Changing Registry Permissions" -ForegroundColor Green
 Write-Host "Block Specified Executables from Running" -ForegroundColor Green
 New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\CompatTelRunner.exe" | New-ItemProperty -Name Debugger -PropertyType String -Value "%windir%\System32\systray.exe" -Force
 New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\WaaSMedicAgent.exe" | New-ItemProperty -Name Debugger -PropertyType String -Value "%windir%\System32\systray.exe" -Force
+#New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\TextInputHost.exe" | New-ItemProperty -Name Debugger -PropertyType String -Value "%windir%\System32\systray.exe" -Force
 #New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\slui.exe" | New-ItemProperty -Name Debugger -PropertyType String -Value "%windir%\System32\systray.exe" -Force
 #New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\GameBarPresenceWriter.exe" | New-ItemProperty -Name Debugger -PropertyType String -Value "%windir%\System32\systray.exe" -Force
 
@@ -372,31 +375,31 @@ New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 2 -Force
 
 # Disable Drivers not listed under services.msc
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\volmgrx"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
- New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\NetBIOS"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\NetBIOS"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\CldFlt"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\CSC"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\wcifs"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\storqosflt"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\wcifs"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\storqosflt"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 #$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\GpuEnergyDrv"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 #New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\lltdio"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\MsLldp"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\lltdio"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\MsLldp"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\wcncsvc"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\rspndr"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\rspndr"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\spaceport"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\Vid"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\Vid"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\kdnic"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 
@@ -461,76 +464,17 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'VMware*') {
     }
 
 # Adjust failure actions
+sc failure DoSvc reset= 60 actions= "" actions= ""
+sc failure UsoSvc reset= 60 actions= "" actions= ""
 sc failure bits reset= 60 actions= "" actions= ""
-sc failure wuauserv reset= 60 actions= "" actions= ""
 sc failure WaaSMedicSvc reset= 60 actions= "" actions= ""
+sc failure wuauserv reset= 60 actions= "" actions= ""
 
-# Neuter Stubborn Services by removing them from this list (UsoSvc, Bits, etc)
-New-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Svchost' -Name 'netsvcs' -Value @(
-"CertPropSvc",
-"SCPolicySvc",
-"lanmanserver",
-"gpsvc",
-"IKEEXT",
-"iphlpsvc",
-"seclogon",
-"msiscsi",
-"EapHost",
-"schedule",
-"winmgmt",
-"ProfSvc",
-"SessionEnv",
-"wercplsupport",
-"InstallService",
-"PushToInstall",
-"TroubleshootingSvc",
-"LxpSvc",
-"shpamsvc",
-"XblGameSave",
-"DmEnrollmentSvc",
-"WManSvc",
-"Themes",
-"UserManager",
-"NetSetupSvc",
-"wlidsvc",
-"TokenBroker",
-"lfsvc",
-"NaturalAuthentication",
-"FastUserSwitchingCompatibility",
-"Ias",
-"Irmon",
-"Nla",
-"Ntmssvc",
-"NWCWorkstation",
-"Nwsapagent",
-"Rasauto",
-"Rasman",
-"Remoteaccess",
-"SENS",
-"Sharedaccess",
-"SRService",
-"Tapisrv",
-"Wmi",
-"WmdmPmSp",
-"ShellHWDetection",
-"LogonHours",
-"PCAudit",
-"helpsvc",
-"uploadmgr",
-"dmwappushservice",
-"wisvc",
-"WpnService",
-"AppInfo",
-"XboxNetApiSvc",
-"XboxGipSvc",
-"NcaSvc",
-"XblAuthManager",
-"DsmSvc",
-"AppMgmt",
-"BDESVC",
-"MsKeyboardFilter"
-"wuauserv"
-) -PropertyType MultiString -Force -ea SilentlyContinue;
+# Neuter Stubborn Services by removing them from this list (UsoSvc, Bits, DoSvc, WaaSMedicSvc, etc)
+$Array=(Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Svchost' -Name netsvcs).netsvcs
+$Array|?{$_ -ne 'BITS' -and $_ -ne 'DoSvc' -and $_ -ne 'UsoSvc' -and $_ -ne 'WaaSMedicSvc'}
+$NewArray=$Array|?{$_ -ne 'BITS' -and $_ -ne 'DoSvc' -and $_ -ne 'UsoSvc' -and $_ -ne 'WaaSMedicSvc'}
+Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Svchost' -Name netsvcs -Value $NewArray
 
 
 <# Disable Windows Components through Registry #>
@@ -766,6 +710,7 @@ New-ItemProperty -Path $Path -Name "DisableWindowHinting" -PropertyType Dword -V
 $PowerSettings = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerSettings' -Recurse -Depth 1 | Where-Object { $_.PSChildName -NotLike 'DefaultPowerSchemeValues' -and $_.PSChildName -NotLike '0' -and $_.PSChildName -NotLike '1' }
 ForEach ($item in $PowerSettings) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'Attributes' -Value 2 -Force }
 
+
 # Prepare predefined Power Plans, Import and activate Dummy.pow plan for temporary use.
 copy .\Pow\*.pow C:\
 powercfg /import "c:\Dummy.pow" 90000000-0000-0000-0000-000000000009
@@ -793,9 +738,10 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 
     powercfg /import "c:\Balanced (RZ09-0310).pow" 381b4222-f694-41f0-9685-ff5bb260df2e
     powercfg /S 381b4222-f694-41f0-9685-ff5bb260df2e
     powercfg /h on
-    # Enable hibernate button for laptop
+    # Enable hibernate/standby button for laptop
     $Path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "ShowHibernateOption" -PropertyType Dword -Value 1 -Force
+    New-ItemProperty -Path $Path -Name "ShowSleepOption" -PropertyType Dword -Value 1 -Force
     }
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'A10N-8800E') {
     powercfg /d a1841308-3541-4fab-bc81-f71556f20b4a
@@ -826,8 +772,8 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -notmatch 'VMware*') {
     New-ItemProperty -Path $Path -Name "FeatureSettingsOverride" -PropertyType Dword -Value 3 -Force
     New-ItemProperty -Path $Path -Name "FeatureSettingsOverrideMask" -PropertyType Dword -Value 3 -Force
     # Enable Intel TSX
-    #$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    #New-ItemProperty -Path $Path -Name "DisableTsx" -PropertyType Dword -Value 0 -Force
+    $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "DisableTsx" -PropertyType Dword -Value 0 -Force
     }
 
 # Enable Virtualization Based Security (VBS). Requires enabling in VMWare host configuration as well!
@@ -1028,14 +974,14 @@ New-ItemProperty -Path $Path -Name "EnableDoubleTapSpace" -PropertyType Dword -V
 # GameBar/GameDVR Related
 New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR"; New-ItemProperty -Name AllowGameDVR -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -PropertyType Dword -Value 0 -Force
 # Disabling gamebar injection hook
-New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -Name ActivationType -PropertyType Dword -Value 0 -Force
+#New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -Name ActivationType -PropertyType Dword -Value 1 -Force
 $Path = "HKU:\SOFTWARE\Microsoft\GameBar"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "UseNexusForGameBarEnabled" -PropertyType Dword -Value 0 -Force
 $Path = "HKU:\System\GameConfigStore"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "GameDVR_Enabled" -PropertyType Dword -Value 0 -Force
 # Game Mode On/Off
-$Path = "HKU:\Software\Microsoft\GameBar"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "AutoGameModeEnabled" -PropertyType Dword -Value 0 -Force
+#$Path = "HKU:\Software\Microsoft\GameBar"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "AutoGameModeEnabled" -PropertyType Dword -Value 0 -Force
 
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
     # Disable Windows Keys, and remap key close to left shift (to left shift)
@@ -1314,6 +1260,9 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 
     # Custom (Optimized) Visual Settings with Cursor Shadow Disabled.
     $Path = "HKU:\Control Panel\Desktop"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path "$Path" -Name "UserPreferencesMask" -Value ([byte[]](0x90,0x12,0x07,0x80,0x12,0x00,0x00,0x00)) -PropertyType Binary -Force
+    # Adjust Font Gamma (Even at 100% dpi default, its way too extreme at 1200)
+    #$Path = "HKU:\Control Panel\Desktop"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    #New-ItemProperty -Path $Path -Name "FontSmoothingGamma" -PropertyType Dword -Value 1400 -Force
     # Change Title Bar Height
     #$Path = "HKU:\Control Panel\Desktop\WindowMetrics"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     #New-ItemProperty -Path $Path -Name "CaptionHeight" -PropertyType String -Value "-315" -Force
@@ -1391,7 +1340,7 @@ $Path = "HKU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers
 New-ItemProperty -Path $Path -Name "C:\Windows\System32\mmc.exe" -PropertyType String -Value "~ HIGHDPIAWARE" -Force
 New-ItemProperty -Path $Path -Name "C:\Windows\System32\msiexec.exe" -PropertyType String -Value "~ HIGHDPIAWARE" -Force
 New-ItemProperty -Path $Path -Name "C:\Windows\System32\perfmon.exe" -PropertyType String -Value "~ HIGHDPIAWARE" -Force
-New-ItemProperty -Path $Path -Name "C:\Windows\System32\mstsc.exe" -PropertyType String -Value "~ HIGHDPIAWARE" -Force
+#New-ItemProperty -Path $Path -Name "C:\Windows\System32\mstsc.exe" -PropertyType String -Value "~ HIGHDPIAWARE" -Force
 
 # We always want to dictate custom DPI % even at common values i.e. 100%/125%/150%. This solves some issues with window locations / blurry taskbar icons after resolution change / alt+tab
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
@@ -1431,12 +1380,10 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'A10N-8800E') {
 <# Remote Desktop Configuration #>
 Write-Host "Configuring Remote Desktop" -ForegroundColor Green
 # Enable Remote Desktop
-$Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "fDenyTSConnections" -PropertyType DWord -Value 0 -Force
+#$Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "fDenyTSConnections" -PropertyType DWord -Value 0 -Force
 # Don't Adjust Remote Session DPI
 #$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-#New-ItemProperty -Path $Path -Name "IgnoreClientDesktopScaleFactor" -PropertyType Dword -Value 1 -Force
-#$Path = "HKU:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 #New-ItemProperty -Path $Path -Name "IgnoreClientDesktopScaleFactor" -PropertyType Dword -Value 1 -Force
 # Change Listening Port
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
@@ -1445,16 +1392,23 @@ New-ItemProperty -Path $Path -Name "PortNumber" -PropertyType Dword -Value 11139
 #$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 #New-ItemProperty -Path $Path -Name "DWMFRAMEINTERVAL" -PropertyType Dword -Value 2 -Force
 # Prioritize H.264/AVC 444 graphics mode for Remote Desktop Connections
-#$Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-#New-ItemProperty -Path $Path -Name "AVC444ModePreferred" -PropertyType Dword -Value 1 -Force
+$Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+New-ItemProperty -Path $Path -Name "AVC444ModePreferred" -PropertyType Dword -Value 1 -Force
 # Configure H.264/AVC Hardware encoding for Remote Desktop Connections
 #New-ItemProperty -Path $Path -Name "AVCHardwareEncodePreferred" -PropertyType Dword -Value 1 -Force
 
 
-<# Network Protocol Configuration #>
+<# Network Configuration #>
 Write-Host "Set Networking Configuration" -ForegroundColor Green
-Set-NetIPinterface -InterfaceAlias '*' -NlMtuBytes 1440
+Get-NetIPInterface | Where-Object {$_.InterfaceAlias -like "*Wi-Fi*" -or $_.InterfaceAlias -like "*Ethernet*"} | Set-NetIPInterface -NlMtuBytes 1440
+Set-NetIPInterface -InterfaceAlias '*VMnet8*' -InterfaceMetric 128
+Set-NetIPInterface -InterfaceAlias '*VMnet1*' -InterfaceMetric 96
 #Set-NetTCPSetting -EcnCapability Enable
+# Max UDP packet size for sending through io fast path (Shouldn't matter as most game packets dont even exceed the standard value)
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\AFD\Parameters"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "FastSendDatagramThreshold" -PropertyType Dword -Value "1440" -Force
+
+# Network Protocol Bindings
 Set-NetAdapterBinding -Name '*' -DisplayName 'Client for Microsoft Networks' -Enabled 0 -ea SilentlyContinue
 Set-NetAdapterBinding -Name '*' -DisplayName 'Internet Protocol Version 6 (TCP/IPv6)' -Enabled 0 -ea SilentlyContinue
 Set-NetAdapterBinding -Name '*' -DisplayName 'Microsoft LLDP Protocol Driver' -Enabled 0 -ea SilentlyContinue
@@ -1475,10 +1429,9 @@ Set-NetAdapterBinding -Name 'VMware Network Adapter VMNet8' -DisplayName 'Client
 Set-NetAdapterBinding -Name 'VMware Network Adapter VMNet8' -DisplayName 'File and Printer Sharing for Microsoft Networks' -AllBindings -Enabled 0 -ea SilentlyContinue
 #VMware adapter (All)
 #Set-NetAdapterBinding -Name 'VMware Network Adapter*' -DisplayName 'Npcap Packet Driver (NPCAP)' -AllBindings -Enabled 0 -ea SilentlyContinue
-
-$model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'A10N-8800E' -or $model -like 'VMware 7,1') {
-    Set-NetAdapterBinding -Name '*' -DisplayName 'QoS Packet Scheduler' -Enabled 0 -ea SilentlyContinue    
-    }
+#$model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'A10N-8800E' -or $model -like 'VMware 7,1') {
+#    Set-NetAdapterBinding -Name '*' -DisplayName 'QoS Packet Scheduler' -Enabled 0 -ea SilentlyContinue    
+#    }
 
 # Disable NetBIOS over TCP/IP on all interfaces
 $i = 'HKLM:\SYSTEM\CurrentControlSet\Services\netbt\Parameters\interfaces'  
@@ -1500,12 +1453,18 @@ Get-ChildItem $i | ForEach-Object {
 #New-ItemProperty -Path $Path -Name "DisableSmartNameResolution" -PropertyType Dword -Value 1 -Force
 
 #NCSI
+#We solely depend on passive polling so we don't require to pass nlasvc and corresponding msft address through firewall/qos. Assuming this also quickens the process by skipping active probes.
+$Path = "HKLM:SYSTEM\CurrentControlSet\Services\NlaSvc\Parameters\Internet"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+New-ItemProperty -Path $Path -Name "EnableActiveProbing" -PropertyType Dword -Value 0 -Force
+#Disable Only Local Connectivity Icon regardless of NCSI success
+#$Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Network Connections"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "NC_DoNotShowLocalOnlyIcon" -PropertyType Dword -Value 1 -Force
 #Disable Passive Polling, saves CPU cycles.
 #$Path = "HKLM:\Software\Policies\Microsoft\Windows\NetworkConnectivityStatusIndicator"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 #New-ItemProperty -Path $Path -Name "DisablePassivePolling" -PropertyType Dword -Value 1 -Force
 #Change WebHost address
-$Path = "HKLM:SYSTEM\CurrentControlSet\Services\NlaSvc\Parameters\Internet"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "ActiveWebProbeHost" -PropertyType String -Value 'msftncsi.com' -Force
+#$Path = "HKLM:SYSTEM\CurrentControlSet\Services\NlaSvc\Parameters\Internet"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "ActiveWebProbeHost" -PropertyType String -Value 'www.msftconnecttest.com' -Force
 
 #Wifi
 #$Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\HotspotAuthentication"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
@@ -1558,9 +1517,9 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Large Send Offload (IPv4)' -RegistryValue '0'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Large Send Offload V2 (IPv4)' -RegistryValue '0'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Large Send Offload V2 (IPv6)' -RegistryValue '0'
-    #REALLY NOT NEEDED, POWERSHELL APPLET CHANGES THIS AUTO Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Maximum Number of RSS Queues' -RegistryValue '1'
+    #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Maximum Number of RSS Queues' -RegistryValue '1'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'NS Offload' -RegistryValue '0'
-    Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Packet Priority & VLAN' -RegistryValue '1'
+    #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Packet Priority & VLAN' -RegistryValue '1'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Receive Buffers' -RegistryValue '16'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Transmit Buffers' -RegistryValue '16'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Receive Side Scaling' -RegistryValue '1'
@@ -1580,9 +1539,9 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
 
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
     Set-NetAdapterAdvancedProperty -Name '*Wi-Fi*' -DisplayName 'Global BG Scan blocking' -RegistryValue '2'
-    Set-NetAdapterAdvancedProperty -Name '*Wi-Fi*' -DisplayName 'Preferred Band' -RegistryValue '2'
+    #Set-NetAdapterAdvancedProperty -Name '*Wi-Fi*' -DisplayName 'Preferred Band' -RegistryValue '2'
     Set-NetAdapterAdvancedProperty -Name '*Wi-Fi*' -DisplayName 'Roaming Aggressiveness' -RegistryValue '0'
-    Set-NetAdapterAdvancedProperty -Name '*Wi-Fi*' -DisplayName '802.11a/b/g Wireless Mode' -RegistryValue '17'
+    #Set-NetAdapterAdvancedProperty -Name '*Wi-Fi*' -DisplayName '802.11a/b/g Wireless Mode' -RegistryValue '17'
     #Set-NetAdapterAdvancedProperty -Name '*Wi-Fi*' -DisplayName '802.11n/ac/ax Wireless Mode' -RegistryValue '2'
     #Set-NetAdapterAdvancedProperty -Name '*Wi-Fi*' -DisplayName 'MIMO Power Save Mode' -RegistryValue '3'
     Set-NetAdapterAdvancedProperty -Name '*Wi-Fi*' -DisplayName 'U-APSD Support' -RegistryValue '1'
@@ -1597,13 +1556,13 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'A10N-8800E') {
     Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Gigabit Lite' -RegistryValue '0'
     Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Green Ethernet' -RegistryValue '0'
     Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Interrupt Moderation' -RegistryValue '0'
-    Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Maximum Number of RSS Queues' -RegistryValue '4'
+    #Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Maximum Number of RSS Queues' -RegistryValue '4'
     Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Power Saving Mode' -RegistryValue '0'
-    Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Priority & VLAN' -RegistryValue '1'
+    #Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Priority & VLAN' -RegistryValue '1'
     #Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Receive Side Scaling' -RegistryValue '1'
-    Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled
+    Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Enabled
     #Set-NetOffloadGlobalSetting -ReceiveSideScaling enabled
-    Set-NetAdapterRss -Name '*' -Profile 'NUMAStatic' -BaseProcessorNumber 0 -MaxProcessorNumber 3 -NumberOfReceiveQueues 4
+    Set-NetAdapterRss -Name '*' -Profile 'NUMAStatic' -BaseProcessorNumber 0 -MaxProcessorNumber 3 -NumberOfReceiveQueues 2
     }
 
 
@@ -1662,15 +1621,20 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -notmatch 'VMware*') { b
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') { bcdedit /set disabledynamictick yes }
 
 
-<# Driver Adjustments #>
+<# Driver / GPU Adjustments #>
 Write-Host "Change Low-level Driver Settings" -ForegroundColor Green
 # Enable/Disable GPU features
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "HwSchMode" -PropertyType Dword -Value 2 -Force # 2: Hardware GPU Scheduling, 1: Off
+New-ItemProperty -Path $Path -Name "HwSchMode" -PropertyType Dword -Value 1 -Force # 2: Hardware GPU Scheduling, 1: Off
 New-ItemProperty -Path $Path -Name "PlatformSupportMiracast" -PropertyType Dword -Value 0 -Force
+$model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
+    #Disable hardware acceleration for .NET/WFP (Affects things like Powershell ISE)
+    $Path = "HCU:\SOFTWARE\Microsoft\Avalon.Graphics"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "DisableHWAcceleration" -PropertyType Dword -Value 1 -Force
+    }
 # Disable Devices in Devmgmt.msc that were already disabled through registry. (Get rid of exclamation mark)
 #Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Remote Desktop Device Redirector Bus' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
-Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Microsoft Hyper-V Virtualization Infrastructure Driver' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
+#Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Microsoft Hyper-V Virtualization Infrastructure Driver' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
 Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Microsoft Storage Spaces Controller' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
 Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Microsoft Kernel Debug Network Adapter' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
 Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Remote Desktop Camera Bus' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
@@ -1695,17 +1659,16 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
     $InterruptAffinity = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'Affinity Policy' -and $_.Name -match 'VEN_1B21&DEV_2142' }
     ForEach ($item in $InterruptAffinity) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'DevicePolicy' -Value 4 -Force; Set-ItemProperty -Path $path -Name 'AssignmentSetOverride' -Type Binary -Value ([byte[]](0x80)) -Force }
 
-    # (WARNING: Needs to be set at least to equal or higher to the amount of RSS queues set). 
+    # (WARNING: Needs to be set at least to equal or higher to the amount of RSS queues set + 1). 
     # Set MSI Message Limit (Intel Ethernet I210-T1 Gbe NIC)
     $MSIMessageLimit = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'MessageSignaledInterruptProperties' -and $_.Name -match 'VEN_8086&DEV_1533' }
-    ForEach ($item in $MSIMessageLimit) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'MessageNumberLimit' -Value 2 -Force }
+    ForEach ($item in $MSIMessageLimit) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'MessageNumberLimit' -Value 3 -Force }
 
     # Disable Unnecessary Devices (Nvidia USB 3.1 Controller, Nvidia DisplayPort HD Audio, etc)
     Disable-PnpDevice -InstanceId "PCI\VEN_10DE&DEV_10F8&SUBSYS_3FE91458&REV_A1\4&50A803F&0&0108" -confirm:$false
     Disable-PnpDevice -InstanceId "PCI\VEN_10DE&DEV_1AD8&SUBSYS_3FE91458&REV_A1\4&50A803F&0&0208" -confirm:$false
     Disable-PnpDevice -InstanceId "PCI\VEN_10DE&DEV_1AD9&SUBSYS_3FE91458&REV_A1\4&50A803F&0&0308" -confirm:$false
     
-    <#
     # Disable 'Allow the computer to turn off this device to save power' on all possible devices.
     $device = Get-WmiObject Win32_PnPEntity
     $powerMgmt = Get-WmiObject MSPower_DeviceEnable -Namespace root\wmi
@@ -1722,7 +1685,7 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
                     }
     	}
     }
-        #>
+  
    
    # Disable 'Allow this device to wake the computer' on all possible devices.
    $device = Get-WmiObject Win32_PnPEntity
@@ -1788,6 +1751,7 @@ New-ItemProperty -Path $Path -Name "NoUpButton" -PropertyType Dword -Value 0 -Fo
 <# Miscellaneous #>
 Write-Host "Applying Miscellaneous Jobs" -ForegroundColor Green
 tzutil /s "W. Europe Standard Time"
+gpupdate /force
 
 #net accounts /maxpwage:unlimited
 #net user User User /add
@@ -1797,8 +1761,8 @@ tzutil /s "W. Europe Standard Time"
 #New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" -Name "Hide User" -PropertyType String -Value "reg add `"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList`" /v User /t REG_DWORD /d 0 /f" -Force
 
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -notmatch 'VMware*') {
-    mkdir C:\Windows\BasicThemer2-v0.5.1-Release
-    xcopy /E /Y /D Resources\BasicThemer2-v0.5.1-Release\*.* C:\Windows\BasicThemer2-v0.5.1-Release
+    #mkdir C:\Windows\BasicThemer2-v0.5.1-Release
+    #xcopy /E /Y /D Resources\BasicThemer2-v0.5.1-Release\*.* C:\Windows\BasicThemer2-v0.5.1-Release
     mkdir C:\Windows\Resources\Wallpapers
     xcopy /Y /D .\Resources\58-110-165.png C:\Windows\Resources\Wallpapers
     xcopy /Y /D .\Resources\aerolite.theme C:\Windows\Resources\Themes
@@ -1819,8 +1783,8 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12'){
     mkdir 'C:\Users\Administrator\Documents\Corsair Effects Engine'
     xcopy /E /Y /D 'Resources\Corsair Effects Engine\*.*' 'C:\Users\Administrator\Documents\Corsair Effects Engine'
 
-    mkdir 'C:\Program Files\VSTPlugins\reaplugs236_x64-install'
-    xcopy /E /Y /D 'Resources\VSTPlugins\reaplugs236_x64-install\*.*' 'C:\Program Files\VSTPlugins\reaplugs236_x64-install'
+    #mkdir 'C:\Program Files\VSTPlugins\reaplugs236_x64-install'
+    #xcopy /E /Y /D 'Resources\VSTPlugins\reaplugs236_x64-install\*.*' 'C:\Program Files\VSTPlugins\reaplugs236_x64-install'
     }
 
 $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') { 
