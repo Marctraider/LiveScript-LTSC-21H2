@@ -32,7 +32,7 @@ Exit
 # Full Screen Optimizations
 if ($args[1] -like 'DisableFSO') {
 $Path = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
-$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -ea SilentlyContinue -Name "$($Args[0])")."$($Args[0])" 
 if ($Value -notmatch 'DISABLEDXMAXIMIZEDWINDOWEDMODE'){
     if ($Value -match '~') {
         $NewValue = ($Value + " DISABLEDXMAXIMIZEDWINDOWEDMODE")
@@ -47,7 +47,7 @@ Exit
 }
 
 if ($args[1] -like 'EnableFSO') {
-$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -ea SilentlyContinue -Name "$($Args[0])")."$($Args[0])"
 $NewValue = $Value -replace " DISABLEDXMAXIMIZEDWINDOWEDMODE"
 Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])" -Value $NewValue
 Exit
@@ -55,7 +55,7 @@ Exit
 
 # DPI Scaling
 if ($args[1] -like 'DpiDefault') {
-$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -ea SilentlyContinue -Name "$($Args[0])")."$($Args[0])"
 $NewValue = $Value -replace " GDIDPISCALING DPIUNAWARE" -replace " DPIUNAWARE" -replace " HIGHDPIAWARE"
 Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])" -Value $NewValue
 Exit
@@ -63,7 +63,7 @@ Exit
 
 if ($args[1] -like 'DpiApplication') {
 $Path = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
-$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -ea SilentlyContinue -Name "$($Args[0])")."$($Args[0])"
 $NewValue = $Value -replace " GDIDPISCALING DPIUNAWARE" -replace " DPIUNAWARE" -replace " HIGHDPIAWARE"
 
 if ($NewValue -match '~') {
@@ -79,7 +79,7 @@ Exit
 
 if ($args[1] -like 'DpiSystem') {
 $Path = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
-$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -ea SilentlyContinue -Name "$($Args[0])")."$($Args[0])"
 $NewValue = $Value -replace " GDIDPISCALING DPIUNAWARE" -replace " DPIUNAWARE" -replace " HIGHDPIAWARE"
 
 if ($NewValue -match '~') {
@@ -96,7 +96,7 @@ Exit
 if ($args[1] -like 'DpiSystemEnhanced') {
 
 $Path = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
-$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -ea SilentlyContinue -Name "$($Args[0])")."$($Args[0])"
 $NewValue = $Value -replace " GDIDPISCALING DPIUNAWARE" -replace " DPIUNAWARE" -replace " HIGHDPIAWARE"
 
 if ($NewValue -match '~') {
@@ -114,7 +114,7 @@ Exit
 # Unelevated
 if ($args[1] -like 'RunUnelevatedPersistent') {
 $Path = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType String -Path $Path -Force }
-$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -ea SilentlyContinue -Name "$($Args[0])")."$($Args[0])"
 if ($Value -notmatch 'RunAsInvoker'){
     if ($Value -match '~') {
         $NewValue = ($Value + " RunAsInvoker")
@@ -129,7 +129,7 @@ Exit
 }
 
 if ($args[1] -like 'RemoveUnelevatedPersistent') {
-$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])")."$($Args[0])"
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -ea SilentlyContinue -Name "$($Args[0])")."$($Args[0])"
 $NewValue = $Value -replace " RunAsInvoker"
 Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])" -Value $NewValue
 Exit

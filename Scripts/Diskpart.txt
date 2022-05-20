@@ -1,0 +1,3 @@
+select disk 0
+select part 1
+assign letter=A:

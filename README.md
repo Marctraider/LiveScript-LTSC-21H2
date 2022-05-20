@@ -66,7 +66,7 @@ Only use if you have actual experience with windows and know how to minimize ris
 - Activate Windows
 - Install all desired drivers, etc.
 - Backup system in case something fails. (Recommending AOMEI Backupper)
-- Run.cmd will start the corresponding elevated and unelevated scripts. (Elevated has SYSTEM level privilege, unelevated runs under local user account) 
+- Run.cmd will start the corresponding elevated and unelevated scripts. (Elevated has SYSTEM level privilege, unelevated runs under local user account. For HKLM/HKCU hives respectively) 
 - Script can be ran after every driver, cumulative update or other significant OS change which is covered by the script. (Script generated and already created custom firewall rules through context menu will not be purged.)
 - Recommended for first use to run script again after first reboot.
 

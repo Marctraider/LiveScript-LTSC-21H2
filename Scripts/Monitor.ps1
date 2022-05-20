@@ -1,4 +1,8 @@
+# Monitor WMI events and take action on trigger.
+
 Get-EventSubscriber | Unregister-Event
+
+$model = (gwmi Win32_ComputerSystem).Model
 
 $objUser = New-Object System.Security.Principal.NTAccount("Administrator")
 $strSID = $objUser.Translate([System.Security.Principal.SecurityIdentifier])
@@ -18,7 +22,7 @@ Start-Service -Name "STR"
 }
 
 # Monitor Power State Changes (Razer Laptop) and stop/start AHK and STR service.
-$model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
+if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
     Register-WmiEvent -Query 'Select * From Win32_PowerManagementEvent within 5' -SourceIdentifier 'Power' -Action {
         If ([bool](Get-WmiObject -Class BatteryStatus -Namespace root\wmi).PowerOnLine) {
         Start-Service -Name "STR"
@@ -48,7 +52,6 @@ Register-WmiEvent -Query $wmiEvent -SourceIdentifier myKeyListener -Action {
     write-host "yes"; Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "*" -Confirm:$False
     }
 
-
 # Monitor Firewall Changes
 $query = "SELECT * FROM __instanceCreationEvent within 2 WHERE TargetInstance ISA 'Win32_NTLogEvent' AND TargetInstance.EventCode=2004"
 Register-WMIEvent -Query $query -SourceIdentifier Firewall -Action { 
@@ -56,7 +59,7 @@ Register-WMIEvent -Query $query -SourceIdentifier Firewall -Action {
     }
 
 # Monitor Resume from Hibernation
-$model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
+if ( $model -like 'MS-7B12') {
     $query = "SELECT * FROM __instanceCreationEvent WHERE TargetInstance ISA 'Win32_NTLogEvent' AND TargetInstance.EventCode=107"
     Register-WMIEvent -Query $query -Action { 
         Start-Sleep -Seconds 10
@@ -66,4 +69,28 @@ $model = (gwmi Win32_ComputerSystem).Model; if ( $model -like 'MS-7B12') {
         Start-Sleep -Seconds 10
         Start-Process -NoNewWindow -LoadUserProfile -FilePath "C:\Windows\XonarSwitch.exe" -WorkingDirectory "C:\Windows"
         }
+}
+
+# Monitor RDP Session
+if ( $model -like 'MS-7B12') {
+Register-WmiEvent -Query "SELECT * FROM __InstanceCreationEvent WITHIN 15 WHERE TargetInstance ISA 'Win32_LogonSession' AND TargetInstance.LogonType = 2" -SourceIdentifier 'RDPLogOn' -Action {
+    if((get-process "XonarSwitch" -ea SilentlyContinue) -eq $Null){ 
+    Write-Host "Do Nothing"
+    }
+    else {
+        Stop-Process -Name XonarSwitch -Force
+        Write-Host "Stop XonarSwitch"
+        }
+    
+    }
+
+Register-WMIEvent -Query "SELECT * FROM __instanceCreationEvent WHERE TargetInstance ISA 'Win32_NTLogEvent' AND TargetInstance.EventCode=40" -SourceIdentifier "RDPLogOff" -Action {
+ if((get-process "XonarSwitch" -ea SilentlyContinue) -ne $Null){ 
+    Write-Host "Do Nothing"
+    }
+    else {
+        Start-Process -NoNewWindow -LoadUserProfile -FilePath "C:\Windows\XonarSwitch.exe" -WorkingDirectory "C:\Windows"
+        Write-Host "Start XonarSwitch"
+        }
+    }
 }

@@ -1,10 +1,9 @@
-﻿#
-
+# Automatically admin share newly mounted drives
 $DrivesCount = (gwmi -Query "Select * from Win32_LogicalDisk").Count
 $Drives = (gwmi -Query "Select * from Win32_LogicalDisk")
 
 while(1) {
-Start-Sleep -Seconds 5
+Start-Sleep -Milliseconds 10000
     $DrivesCountNew = (gwmi -Query "Select * from Win32_LogicalDisk").Count
         if ($DrivesCount -ne $DrivesCountNew) 
           {
@@ -13,7 +12,11 @@ Start-Sleep -Seconds 5
           if (!($DriveLetter -eq $null)) { 
           Write-host "New drive mounted $DriveLetter"
           
-          net share X$=X:\ /GRANT:Administrator,FULL /CACHE:None
+          $NewDriveLetter = $DriveLetter -replace ':','' # Remove ':' Symbol
+          net share $NewDriveLetter$=$DriveLetter\ /GRANT:Administrator,FULL /CACHE:None
+
+          $DrivesCount = (gwmi -Query "Select * from Win32_LogicalDisk").Count
+          $Drives = (gwmi -Query "Select * from Win32_LogicalDisk")
 
           }
           $DrivesCount = (gwmi -Query "Select * from Win32_LogicalDisk").Count 
