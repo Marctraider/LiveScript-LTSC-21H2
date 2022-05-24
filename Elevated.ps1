@@ -239,7 +239,10 @@ Write-Host "Installing Visual C++ Runtime libraries if not installed..." -Foregr
 
 
 <# Adjust Services #>
-
+#
+# Additional service info:
+# CDPSvc - Used for Night Light functionality
+#
 #Disable
 Write-Host "Adjusting services start type..." -ForegroundColor Green
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\wuauserv"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
@@ -428,10 +431,6 @@ if ( $model -like 'A10N-8800E') {
     New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\BthAvctpSvc"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-    $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\Audiosrv"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-    $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\AudioEndpointBuilder"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\RmSvc"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\SgrmBroker"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
@@ -458,14 +457,6 @@ if ( $model -like 'VMware*') {
     New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\DisplayEnhancementService"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-    }
-
-# Might be used for bluetooth?
-if ( $model -notmatch 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
-    $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\CDPSvc"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force 
-    $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\CDPUserSvc"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force 
     }
 
 # Adjust failure actions
@@ -1384,32 +1375,76 @@ if ( $model -like 'A10N-8800E') {
 
 <# Remote Desktop Configuration #>
 Write-Host "Configuring Remote Desktop" -ForegroundColor Green
+
+# Server Side
+#
 # Enable Remote Desktop (Default disabled, this automatically enables corresponding required services)
 $Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "fDenyTSConnections" -PropertyType DWord -Value 0 -Force
-# Use exact custom DPI used on the local computer we are connecting to.
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "IgnoreClientDesktopScaleFactor" -PropertyType Dword -Value 1 -Force
 # Change Listening Port
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "PortNumber" -PropertyType Dword -Value 11139 -Force
-# Prioritize H.264/AVC 444 decoding for Remote Desktop Connections if supported (Client decode)
+# Clients will adhere to server DPI
+$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+New-ItemProperty -Path $Path -Name "IgnoreClientDesktopScaleFactor" -PropertyType Dword -Value 1 -Force
+# Clients will be allowed to use AVC codec
 $Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "AVC444ModePreferred" -PropertyType Dword -Value 1 -Force
-# Disable WDDM driver and use XDDM instead (Fixes all DPI issues and makes DWMFRAMEINTERVAL work.
+# Server will use GPU rather than CPU for AVC encoding (Appears to cause regression)
+#$Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "AVCHardwareEncodePreferred" -PropertyType Dword -Value 1 -Force
+# Use XDDM instead of WDDM driver model (Fix for DPI and makes DWMFRAMEINTERVAL work, and more performant)
 $Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "fEnableWddmDriver" -PropertyType DWord -Value 0 -Force
-# Configure H.264/AVC Hardware encoding for Remote Desktop Connections if supported (Host encode)
-New-ItemProperty -Path $Path -Name "AVCHardwareEncodePreferred" -PropertyType Dword -Value 1 -Force
-# Increase DWM Frame Capture Interval. 2 is the lowest before dwm.exe goes berserk. 5 Seems ideal for 120hz)
-if ( $model -notmatch 'A10N-8800E') { # Nuc cannot handle such high interval without issues?
-    $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "DWMFRAMEINTERVAL" -PropertyType Dword -Value 5 -Force
-    }
-if ( $model -like 'A10N-8800E') {
+# Use hardware graphics renderer instead of Microsoft remote display adapter (Not all systems like this on)
+if ( $model -match 'Blade Stealth 13 (Early 2020) - RZ09-0310' ) {
     $Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "fEnableWddmDriver" -PropertyType DWord -Value 1 -Force
+    New-ItemProperty -Path $Path -Name "bEnumerateHWBeforeSW" -PropertyType DWord -Value 0 -Force
     }
+    else
+    {
+    $Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "bEnumerateHWBeforeSW" -PropertyType DWord -Value 1 -Force
+    }
+# Enable RemoteFX
+$Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+New-ItemProperty -Path $Path -Name "fEnableVirtualizedGraphics" -PropertyType DWord -Value 1 -Force
+# RemoteFX maximum capture, screen quality and optimize for rich multimedia
+$Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+New-ItemProperty -Path $Path -Name "VGOptimization_CaptureFrameRate" -PropertyType DWord -Value 1 -Force
+$Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+New-ItemProperty -Path $Path -Name "VGOptimization_CompressionRatio" -PropertyType DWord -Value 1 -Force
+$Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+New-ItemProperty -Path $Path -Name "VisualExperiencePolicy" -PropertyType DWord -Value 1 -Force
+# RemoteFX image compression to High (2). Lossless (1) is too taxing (even over 5Ghz wifi) and causing video playback etc to lag.
+# Additionally if AVC is used, it affects AVC codec quality instead. 
+# When set to lossless, AVC codec is force disabled as well.
+$Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+New-ItemProperty -Path $Path -Name "ImageQuality" -PropertyType DWord -Value 2 -Force
+# RemoteFX data compression disabled
+$Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+New-ItemProperty -Path $Path -Name "MaxCompressionLevel" -PropertyType DWord -Value 0 -Force
+if ( $model -like 'MS-7B12' -or $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310' ) {
+    # Amount of frames that will be captured by DWM (Don't set lower than decimal 2. Decimal 15 equals 60 fps)
+    $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "DWMFRAMEINTERVAL" -PropertyType Dword -Value 15 -Force
+    }
+else
+    {
+    $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "DWMFRAMEINTERVAL" -PropertyType Dword -Value 30 -Force
+    }
+
+# Client side
+#
+# Disable hardware decode regardless of server settings (Useful for specific clients)
+if ( $model -like 'MS-7B12') {
+    $Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services\Client"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "EnableHardwareMode" -PropertyType Dword -Value 0 -Force
+    }
+# Disable UDP protocol regardless of server settings (Useful for debugging network)
+#$Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services\Client"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "fClientDisableUDP" -PropertyType Dword -Value 1 -Force
 
 
 <# Network Configuration #>
@@ -1660,7 +1695,6 @@ Get-PnpDevice | Where-Object { $_.FriendlyName -match 'DroidCam Virtual Audio' }
 Get-PnpDevice | Where-Object { $_.FriendlyName -match 'DroidCam Source 3' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
 
 if ( $model -like 'A10N-8800E') {
-    Disable-PnpDevice -InstanceId "PCI\VEN_1022&DEV_157A&SUBSYS_824D1565&REV_00\3&11583659&0&4A" -confirm:$false
     Disable-PnpDevice -InstanceId "ROOT\AMDSAFD&FUN_01&REV_01\0000" -confirm:$false
     Disable-PnpDevice -InstanceId "PCI\VEN_1022&DEV_7901&SUBSYS_79011022&REV_49\3&11583659&0&88" -confirm:$false
 

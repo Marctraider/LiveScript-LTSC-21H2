@@ -78,6 +78,7 @@ Register-WmiEvent -Query "SELECT * FROM __InstanceCreationEvent WITHIN 15 WHERE 
     Write-Host "Do Nothing"
     }
     else {
+        Start-Sleep -Seconds 1
         Stop-Process -Name XonarSwitch -Force
         Write-Host "Stop XonarSwitch"
         }
@@ -89,6 +90,7 @@ Register-WMIEvent -Query "SELECT * FROM __instanceCreationEvent WHERE TargetInst
     Write-Host "Do Nothing"
     }
     else {
+        Start-Sleep -Seconds 5
         Start-Process -NoNewWindow -LoadUserProfile -FilePath "C:\Windows\XonarSwitch.exe" -WorkingDirectory "C:\Windows"
         Write-Host "Start XonarSwitch"
         }

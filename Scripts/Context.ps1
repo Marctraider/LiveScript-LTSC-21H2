@@ -50,6 +50,11 @@ if ($args[1] -like 'EnableFSO') {
 $Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -ea SilentlyContinue -Name "$($Args[0])")."$($Args[0])"
 $NewValue = $Value -replace " DISABLEDXMAXIMIZEDWINDOWEDMODE"
 Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])" -Value $NewValue
+# Re-read value and if only ~ left, remove entirely. (Compatibility reasons)
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -ea SilentlyContinue -Name "$($Args[0])")."$($Args[0])" 
+if ( $Value -eq '~' ) { 
+    Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layer" -Name "$($Args[0])"."$($Args[0])"
+    }
 Exit
 }
 
@@ -58,6 +63,11 @@ if ($args[1] -like 'DpiDefault') {
 $Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -ea SilentlyContinue -Name "$($Args[0])")."$($Args[0])"
 $NewValue = $Value -replace " GDIDPISCALING DPIUNAWARE" -replace " DPIUNAWARE" -replace " HIGHDPIAWARE"
 Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name "$($Args[0])" -Value $NewValue
+# Re-read value and if only ~ left, remove entirely. (Compatibility reasons)
+$Value=(Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -ea SilentlyContinue -Name "$($Args[0])")."$($Args[0])" 
+if ( $Value -eq '~' ) { 
+    Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layer" -Name "$($Args[0])"."$($Args[0])"
+    }
 Exit
 }
 

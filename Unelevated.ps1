@@ -61,8 +61,9 @@ Register-ScheduledTask "Script\Diskpart" -Action $Sta -Settings $Stset -Trigger 
 Unregister-ScheduledTask -TaskName "Monitor" -Confirm:$false -erroraction 'silentlycontinue'
 $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoExit -WindowStyle Hidden -File C:\Windows\Scripts\Monitor.ps1"
 $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit '00:00:00'
-$Sttrig = New-ScheduledTaskTrigger -AtLogOn
-Register-ScheduledTask "Script\Monitor" -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Monitor WMI events.'
+$Sttrig = New-ScheduledTaskTrigger -AtStartUp
+$principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+Register-ScheduledTask "Script\Monitor" -Action $Sta -Settings $Stset -Trigger $Sttrig -Principal $principal -Description 'Monitor WMI events.'
 
 Unregister-ScheduledTask -TaskName ".NET Assembly Compiler" -Confirm:$false -erroraction 'silentlycontinue'
 $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument '-NonInteractive -WindowStyle Hidden "C:\Windows\Microsoft.NET\Framework\v4.0.30319\ngen.exe ExecuteQueuedItems; C:\Windows\Microsoft.NET\Framework64\v4.0.30319\ngen.exe ExecuteQueuedItems"'
