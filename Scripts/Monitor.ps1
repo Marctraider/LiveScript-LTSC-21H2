@@ -73,7 +73,7 @@ if ( $model -like 'MS-7B12') {
 
 # Monitor RDP Session
 if ( $model -like 'MS-7B12') {
-Register-WmiEvent -Query "SELECT * FROM __InstanceCreationEvent WITHIN 15 WHERE TargetInstance ISA 'Win32_LogonSession' AND TargetInstance.LogonType = 2" -SourceIdentifier 'RDPLogOn' -Action {
+Register-WmiEvent -Query 'SELECT * FROM __instanceCreationEvent WHERE TargetInstance ISA "Win32_NTLogEvent" AND TargetInstance.EventCode=25 AND TargetInstance.Message LIKE "%192.168.%"' -SourceIdentifier 'RDPLogOn' -Action {
     if((get-process "XonarSwitch" -ea SilentlyContinue) -eq $Null){ 
     Write-Host "Do Nothing"
     }
@@ -85,7 +85,7 @@ Register-WmiEvent -Query "SELECT * FROM __InstanceCreationEvent WITHIN 15 WHERE 
     
     }
 
-Register-WMIEvent -Query "SELECT * FROM __instanceCreationEvent WHERE TargetInstance ISA 'Win32_NTLogEvent' AND TargetInstance.EventCode=40" -SourceIdentifier "RDPLogOff" -Action {
+Register-WmiEvent -Query 'SELECT * FROM __instanceCreationEvent WHERE TargetInstance ISA "Win32_NTLogEvent" AND TargetInstance.EventCode=24 AND TargetInstance.Message LIKE "%192.168.%"' -SourceIdentifier 'RDPLogOff' -Action {
  if((get-process "XonarSwitch" -ea SilentlyContinue) -ne $Null){ 
     Write-Host "Do Nothing"
     }

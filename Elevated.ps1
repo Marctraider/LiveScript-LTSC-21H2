@@ -1396,15 +1396,15 @@ New-ItemProperty -Path $Path -Name "AVC444ModePreferred" -PropertyType Dword -Va
 # Use XDDM instead of WDDM driver model (Fix for DPI and makes DWMFRAMEINTERVAL work, and more performant)
 $Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "fEnableWddmDriver" -PropertyType DWord -Value 0 -Force
-# Use hardware graphics renderer instead of Microsoft remote display adapter (Not all systems like this on)
-if ( $model -match 'Blade Stealth 13 (Early 2020) - RZ09-0310' ) {
+# Use hardware graphics renderer instead of Microsoft remote display adapter (Not all systems like this on, intel/nvidia)
+if ( $model -match 'A10N-8800E' ) {
     $Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "bEnumerateHWBeforeSW" -PropertyType DWord -Value 0 -Force
+    New-ItemProperty -Path $Path -Name "bEnumerateHWBeforeSW" -PropertyType DWord -Value 1 -Force
     }
     else
     {
     $Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "bEnumerateHWBeforeSW" -PropertyType DWord -Value 1 -Force
+    New-ItemProperty -Path $Path -Name "bEnumerateHWBeforeSW" -PropertyType DWord -Value 0 -Force
     }
 # Enable RemoteFX
 $Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
@@ -1438,10 +1438,10 @@ else
 # Client side
 #
 # Disable hardware decode regardless of server settings (Useful for specific clients)
-if ( $model -like 'MS-7B12') {
-    $Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services\Client"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-    New-ItemProperty -Path $Path -Name "EnableHardwareMode" -PropertyType Dword -Value 0 -Force
-    }
+#if ( $model -like 'MS-7B12') {
+#    $Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services\Client"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#    New-ItemProperty -Path $Path -Name "EnableHardwareMode" -PropertyType Dword -Value 0 -Force
+#    }
 # Disable UDP protocol regardless of server settings (Useful for debugging network)
 #$Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services\Client"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 #New-ItemProperty -Path $Path -Name "fClientDisableUDP" -PropertyType Dword -Value 1 -Force
