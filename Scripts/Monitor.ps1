@@ -1,4 +1,15 @@
-# Monitor WMI events and take action on trigger.
+# Monitor WMI events and take action on trigger
+
+# Initial starting state of elements controlled by this script
+Start-Sleep -Seconds 1
+Disable-NetAdapter -Name '*VMNet*' -Confirm:$False # Fixes NCSI issues at startup
+# Check whether we logged in from a logged out system remotely.
+$Test = Get-EventLog -List | %{Get-EventLog -LogName Microsoft-Windows-TerminalServices-LocalSessionManager/Operational -InstanceId 21 -Message '*192.168.*'-After (Get-Date).AddSeconds(-15) -ErrorAction Ignore} | Sort-Object TimeGenerated | Format-Table -AutoSize -Wrap
+if ($Test -eq $Null) {
+    Start-Process -NoNewWindow -LoadUserProfile -FilePath "C:\Windows\XonarSwitch.exe" -WorkingDirectory "C:\Windows"
+    }
+
+
 
 Get-EventSubscriber | Unregister-Event
 
@@ -71,28 +82,48 @@ if ( $model -like 'MS-7B12') {
         }
 }
 
-# Monitor RDP Session
+# Monitor VMWare
 if ( $model -like 'MS-7B12') {
-Register-WmiEvent -Query 'SELECT * FROM __instanceCreationEvent WHERE TargetInstance ISA "Win32_NTLogEvent" AND TargetInstance.EventCode=25 AND TargetInstance.Message LIKE "%192.168.%"' -SourceIdentifier 'RDPLogOn' -Action {
-    if((get-process "XonarSwitch" -ea SilentlyContinue) -eq $Null){ 
-    Write-Host "Do Nothing"
-    }
-    else {
-        Start-Sleep -Seconds 1
-        Stop-Process -Name XonarSwitch -Force
-        Write-Host "Stop XonarSwitch"
-        }
+    Register-WmiEvent -Query 'Select * From __InstanceCreationEvent Within 2 Where TargetInstance Isa "Win32_Process" And TargetInstance.Name = "vmware-vmx.exe"' -SourceIdentifier 'VMWareInstanceStarted' -Action {
+    Write-Host 'VMWare Virtual Machine Instance Started'
     
+    $Interfaces = Get-NetAdapter -Name '*VMNet*'
+    if ($Interfaces.InterfaceOperationalStatus -eq 2 -or $Interfaces.InterfaceOperationalStatus -eq 6)
+        {
+        Enable-NetAdapter -Name '*VMNet*' -Confirm:$False
+        Write-Host "Enabling adapters"
+        }
     }
+    
+    Register-WMIEvent -Query 'SELECT * From Win32_ProcessStopTrace WHERE ProcessName="vmware-vmx.exe"' -SourceIdentifier 'VMWareInstanceStopped' -Action {
+    Write-Host 'VMWare Virtual Machine Instance Stopped'
+    
+    # Make sure adapters don't get disabled as long as at least one virtual machine is still running.
+    if (!(Get-Process "vmware-vmx" -ErrorAction silentlycontinue)) {
+        $Interfaces = Get-NetAdapter -Name '*VMNet*'
+        if ($Interfaces.InterfaceOperationalStatus -eq 1)
+            {
+            Disable-NetAdapter -Name '*VMNet*' -Confirm:$False
+            Write-Host "Disabling adapters"
+            }
+        }
+    }
+}
 
-Register-WmiEvent -Query 'SELECT * FROM __instanceCreationEvent WHERE TargetInstance ISA "Win32_NTLogEvent" AND TargetInstance.EventCode=24 AND TargetInstance.Message LIKE "%192.168.%"' -SourceIdentifier 'RDPLogOff' -Action {
- if((get-process "XonarSwitch" -ea SilentlyContinue) -ne $Null){ 
-    Write-Host "Do Nothing"
+# Monitor RDP session events
+if ( $model -like 'MS-7B12') {
+    Register-WmiEvent -Query 'SELECT * FROM __instanceCreationEvent WHERE TargetInstance ISA "Win32_NTLogEvent" AND (TargetInstance.EventCode=25 OR TargetInstance.EventCode=21) AND TargetInstance.Message LIKE "%192.168.%"' -SourceIdentifier 'RemoteSessionLoggedOnOrReconnected' -Action {
+    Write-Host "RDP Logged On or reconnected"
+    if (Get-Process "XonarSwitch" -ErrorAction silentlycontinue) {
+        Stop-Process -processname 'XonarSwitch' -Force
+        }
     }
-    else {
+    
+    Register-WmiEvent -Query 'SELECT * FROM __instanceCreationEvent WHERE TargetInstance ISA "Win32_NTLogEvent" AND TargetInstance.EventCode=24 AND TargetInstance.Message LIKE "%192.168.%"' -SourceIdentifier 'RemoteSessionLoggedff' -Action {
+    Write-Host "RDP Logged off"
+    if (!(Get-Process "XonarSwitch" -ErrorAction silentlycontinue)) {
         Start-Sleep -Seconds 5
         Start-Process -NoNewWindow -LoadUserProfile -FilePath "C:\Windows\XonarSwitch.exe" -WorkingDirectory "C:\Windows"
-        Write-Host "Start XonarSwitch"
         }
     }
 }

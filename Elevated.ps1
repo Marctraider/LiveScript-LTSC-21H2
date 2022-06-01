@@ -760,7 +760,7 @@ powercfg /d 90000000-0000-0000-0000-000000000009
 
 <# Low-level Configuration #>
 Write-Host "Set Low-level Configuration" -ForegroundColor Green
-if ( $model -notmatch 'VMware*') {
+if ( $model -notlike 'VMware*') {
     # Disable all system-wide exploit mitigations. (nx OptIn still enables DEP for Windows Kernel/System processes)
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "MitigationAuditOptions" -PropertyType Binary -Value ([byte[]](0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Force
@@ -1476,7 +1476,7 @@ Set-NetAdapterBinding -Name '*' -DisplayName 'NDIS Usermode I/O Protocol' -AllBi
 Set-NetAdapterBinding -Name 'VMware Network Adapter VMNet8' -DisplayName 'Client For Microsoft Networks' -AllBindings -Enabled 0 -ea SilentlyContinue
 Set-NetAdapterBinding -Name 'VMware Network Adapter VMNet8' -DisplayName 'File and Printer Sharing for Microsoft Networks' -AllBindings -Enabled 0 -ea SilentlyContinue
 #VMware adapter (All)
-Disable-NetAdapter -Name '*VMNet*' -Confirm:$False # Initial state at boot (Fixes NCSI issues). Enable manually or by WMI event.
+#Disable-NetAdapter -Name '*VMNet*' -Confirm:$False # Initial state at boot (Fixes NCSI issues). Enable manually or by WMI event.
 
 # Disable NetBIOS over TCP/IP on all interfaces
 $i = 'HKLM:\SYSTEM\CurrentControlSet\Services\netbt\Parameters\interfaces'  
@@ -1584,7 +1584,7 @@ if ( $model -like 'MS-7B12') {
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Wake on Pattern Match' -RegistryValue '0'
     #Set-NetOffloadGlobalSetting -ReceiveSideScaling Enabled
     Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled
-    Set-NetAdapterRss -Name '*Ethernet*' -Profile 'NUMAStatic' -BaseProcessorNumber 2 -MaxProcessorNumber 7 -NumberOfReceiveQueues 2
+    Set-NetAdapterRss -Name '*Ethernet*' -Profile 'NUMAStatic' -BaseProcessorNumber 1 -MaxProcessorNumber 1 -NumberOfReceiveQueues 1
     }
 
 if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
@@ -1612,7 +1612,7 @@ if ( $model -like 'A10N-8800E') {
     #Set-NetAdapterAdvancedProperty -Name '*' -DisplayName 'Receive Side Scaling' -RegistryValue '1'
     Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Enabled
     #Set-NetOffloadGlobalSetting -ReceiveSideScaling enabled
-    Set-NetAdapterRss -Name '*' -Profile 'NUMAStatic' -BaseProcessorNumber 1 -MaxProcessorNumber 3 -NumberOfReceiveQueues 2
+    Set-NetAdapterRss -Name '*' -Profile 'NUMAStatic' -BaseProcessorNumber 0 -MaxProcessorNumber 3 -NumberOfReceiveQueues 2
     }
 
 
@@ -1650,7 +1650,8 @@ Get-ScheduledTask -TaskPath "\*" | Where-Object {$_.Taskname -match 'MicrosoftEd
 # Disable all Windows Default Tasks, with exceptions.
 Get-ScheduledTask -TaskPath "\Microsoft\*" | Where-Object {$_.Taskname -notmatch 'SynchronizeTime' -and $_.Taskname -notmatch 'MsCtfMonitor' -and $_.Taskname -notmatch 'RemoteFXvGPUDisableTask' `
 -and $_.Taskname -notmatch 'Sysprep Generalize Drivers' -and $_.Taskname -notmatch 'Device Install Group Policy' -and $_.Taskname -notmatch 'ResPriStaticDbSync' -and $_.Taskname -notmatch 'WsSwapAssessmentTask' `
- -and $_.Taskname -notmatch 'DXGIAdapterCache' -and $_.Taskname -notmatch 'UninstallDeviceTask' -and $_.Taskname -notmatch 'ExploitGuard MDM policy Refresh' -and $_.Taskname -notmatch 'GatherNetworkInfo'} | Disable-ScheduledTask
+ -and $_.Taskname -notmatch 'DXGIAdapterCache' -and $_.Taskname -notmatch 'UninstallDeviceTask' -and $_.Taskname -notmatch 'ExploitGuard MDM policy Refresh' -and $_.Taskname -notmatch 'GatherNetworkInfo' `
+ -and $_.Taskname -notmatch ' *NGEN* ' } | Disable-ScheduledTask
 # Completely remove some in attempt to kill persistent tasks being recreated/enabled.
 schtasks /Delete /F /TN "\Microsoft\Windows\WaaSMedic\PerformRemediation"
 schtasks /Delete /F /TN "\Microsoft\Windows\WaaSMedic"
@@ -1667,13 +1668,13 @@ schtasks /Delete /F /TN "\Microsoft\Windows\WindowsUpdate\Scheduled Start"
 bcdedit /set description "Windows 10 Enterprise LTSC 21H2"
 bcdedit /set bootlog yes
 bcdedit /set recoveryenabled no
-if ( $model -notmatch 'VMware*' -and $model -notmatch 'A10N-8800E' ) { bcdedit /set nx OptIn }
+if ( $model -notlike 'VMware*' -and $model -notlike 'A10N-8800E' ) { bcdedit /set nx OptIn }
 if ( $model -like 'A10N-8800E' ) { bcdedit /set nx AlwaysOff }
 if ( $model -like 'MS-7B12') { bcdedit /set disabledynamictick yes }
 
 
-<# Driver / GPU Adjustments #>
-Write-Host "Change Low-level Driver Settings" -ForegroundColor Green
+<# Global low-level Adjustments #>
+Write-Host "Change Global Low-level Settings" -ForegroundColor Green
 # Enable/Disable GPU features
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "HwSchMode" -PropertyType Dword -Value 2 -Force # 2: Hardware GPU Scheduling On, 1: Off
@@ -1683,6 +1684,12 @@ if ( $model -like 'MS-7B12') {
     $Path = "HCU:\SOFTWARE\Microsoft\Avalon.Graphics"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "DisableHWAcceleration" -PropertyType Dword -Value 1 -Force
     }
+# MMCSS
+$Path = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+New-ItemProperty -Path $Path -Name "NetworkThrottlingIndex" -PropertyType Dword -Value 4294967295 -Force
+New-ItemProperty -Path $Path -Name "SystemResponsiveness" -PropertyType Dword -Value 0 -Force # Will most likely be treated as 10 (Minimum)
+
+
 # Disable Devices in Devmgmt.msc that were already disabled through registry. (Get rid of exclamation mark)
 #Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Remote Desktop Device Redirector Bus' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
 #Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Microsoft Hyper-V Virtualization Infrastructure Driver' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
@@ -1721,13 +1728,13 @@ if ( $model -like 'MS-7B12') {
     #ForEach ($item in $InterruptAffinity) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'DevicePolicy' -Value 4 -Force; Set-ItemProperty -Path $path -Name 'AssignmentSetOverride' -Type Binary -Value ([byte[]](0x04)) -Force }
 
     # Set Interrupt Affinity (Asmedia XHCI Controller) (For gaming peripherals separated onto this controller)
-    $InterruptAffinity = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'Affinity Policy' -and $_.Name -match 'VEN_1B21&DEV_2142' }
-    ForEach ($item in $InterruptAffinity) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'DevicePolicy' -Value 4 -Force; Set-ItemProperty -Path $path -Name 'AssignmentSetOverride' -Type Binary -Value ([byte[]](0x80)) -Force }
+    #$InterruptAffinity = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'Affinity Policy' -and $_.Name -match 'VEN_1B21&DEV_2142' }
+    #ForEach ($item in $InterruptAffinity) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'DevicePolicy' -Value 4 -Force; Set-ItemProperty -Path $path -Name 'AssignmentSetOverride' -Type Binary -Value ([byte[]](0x80)) -Force }
 
     # (WARNING: Needs to be set at least to equal or higher to the amount of RSS queues set + 1). 
     # Set MSI Message Limit (Intel Ethernet I210-T1 Gbe NIC)
     $MSIMessageLimit = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'MessageSignaledInterruptProperties' -and $_.Name -match 'VEN_8086&DEV_1533' }
-    ForEach ($item in $MSIMessageLimit) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'MessageNumberLimit' -Value 3 -Force }
+    ForEach ($item in $MSIMessageLimit) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'MessageNumberLimit' -Value 2 -Force }
 
     # Disable Unnecessary Devices (Nvidia USB 3.1 Controller, Nvidia DisplayPort HD Audio, etc)
     Disable-PnpDevice -InstanceId "PCI\VEN_10DE&DEV_10F8&SUBSYS_3FE91458&REV_A1\4&50A803F&0&0108" -confirm:$false
@@ -1825,7 +1832,7 @@ gpupdate /force
 #WMIC USERACCOUNT WHERE Name="'User'" SET PasswordExpires=FALSE
 #New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" -Name "Hide User" -PropertyType String -Value "reg add `"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList`" /v User /t REG_DWORD /d 0 /f" -Force
 
-if ( $model -notmatch 'VMware*') {
+if ( $model -notlike 'VMware*') {
     #mkdir C:\Windows\BasicThemer2-v0.5.1-Release
     #xcopy /E /Y /D Resources\BasicThemer2-v0.5.1-Release\*.* C:\Windows\BasicThemer2-v0.5.1-Release
     mkdir C:\Windows\Resources\Wallpapers
@@ -1839,6 +1846,7 @@ if ( $model -notmatch 'VMware*') {
     }
 
 mkdir C:\Windows\Scripts
+mkdir C:\Windows\Scripts\Logs
 del C:\Windows\Scripts\*.*
 xcopy /E /Y /D Scripts\*.* C:\Windows\Scripts
 

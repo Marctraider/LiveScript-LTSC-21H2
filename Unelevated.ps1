@@ -43,6 +43,7 @@ cd ..\..
 
 # Custom Tasks
 Write-Host "Generating Custom Tasks" -ForegroundColor Green
+Unregister-ScheduledTask -TaskName "*" -TaskPath "\Script\*" -Confirm:$false -erroraction 'silentlycontinue'
 
 Unregister-ScheduledTask -TaskName "Group Policy Update" -Confirm:$false -erroraction 'silentlycontinue'
 $Sta = New-ScheduledTaskAction -Execute "gpupdate" -Argument "/force"
@@ -61,9 +62,8 @@ Register-ScheduledTask "Script\Diskpart" -Action $Sta -Settings $Stset -Trigger 
 Unregister-ScheduledTask -TaskName "Monitor" -Confirm:$false -erroraction 'silentlycontinue'
 $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoExit -WindowStyle Hidden -File C:\Windows\Scripts\Monitor.ps1"
 $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit '00:00:00'
-$Sttrig = New-ScheduledTaskTrigger -AtStartUp
-$principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
-Register-ScheduledTask "Script\Monitor" -Action $Sta -Settings $Stset -Trigger $Sttrig -Principal $principal -Description 'Monitor WMI events.'
+$Sttrig = New-ScheduledTaskTrigger -AtLogOn
+Register-ScheduledTask "Script\Monitor" -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Monitor WMI events.'
 
 Unregister-ScheduledTask -TaskName ".NET Assembly Compiler" -Confirm:$false -erroraction 'silentlycontinue'
 $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument '-NonInteractive -WindowStyle Hidden "C:\Windows\Microsoft.NET\Framework\v4.0.30319\ngen.exe ExecuteQueuedItems; C:\Windows\Microsoft.NET\Framework64\v4.0.30319\ngen.exe ExecuteQueuedItems"'
@@ -83,17 +83,26 @@ $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -AllowStartIfO
 $Sttrig = New-ScheduledTaskTrigger -AtLogOn
 Register-ScheduledTask "Script\Run" -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Run various commands at logon.'
 
-Unregister-ScheduledTask -TaskName "Update" -Confirm:$false -erroraction 'silentlycontinue'
-$Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument '-NonInteractive -WindowStyle Hidden -File C:\Windows\Scripts\Update.ps1' -WorkingDirectory 'C:\Windows\System32'
-$Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -RunOnlyIfNetworkAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit '00:00:00'
+Unregister-ScheduledTask -TaskName "Run" -Confirm:$false -erroraction 'silentlycontinue'
+$Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument '-NonInteractive -WindowStyle Hidden -File C:\Windows\Scripts\Run.ps1'
+$Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit '00:00:00'
 $Sttrig = New-ScheduledTaskTrigger -AtLogOn
-Register-ScheduledTask "Script\Update" -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Update Certificate store, hosts file, etc.'
+Register-ScheduledTask "Script\Run" -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Run various commands at logon.'
 
 Unregister-ScheduledTask -TaskName "Share" -Confirm:$false -erroraction 'silentlycontinue'
 $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoExit -WindowStyle Hidden -File C:\Windows\Scripts\Share.ps1"
 $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -ExecutionTimeLimit '00:00:00'
 $Sttrig = New-ScheduledTaskTrigger -AtLogOn
 Register-ScheduledTask "Script\Share" -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Share $Admin Drives on new drive mounts.'
+
+if ( $model -notlike 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
+    Unregister-ScheduledTask -TaskName "Ping" -Confirm:$false -erroraction 'silentlycontinue'
+    $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument '-NonInteractive -WindowStyle Hidden -File C:\Windows\Scripts\Ping.ps1' -WorkingDirectory 'C:\Windows\System32'
+    $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -ExecutionTimeLimit '00:00:00'
+    $Sttrig = New-ScheduledTaskTrigger -AtStartUp
+    $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+    Register-ScheduledTask "Script\Ping" -Action $Sta -Settings $Stset -Trigger $Sttrig -Principal $principal -Description 'Ping.'
+    }
 
 if ( $model -like 'MS-7B12' -or $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
     Unregister-ScheduledTask -TaskName "MTHaxTool" -Confirm:$false -erroraction 'silentlycontinue'
@@ -129,7 +138,7 @@ reg import ".\Registry\Context Add Menu DPI Scaling.reg"
 reg import ".\Registry\Context Add Menu Firewall.reg"
 reg import ".\Registry\Context Add Menu Ownership.reg"
 
-if ( $model -notmatch 'VMware*') {
+if ( $model -notlike 'VMware*') {
     reg import ".\Registry\Context Add Security Performance Mode.reg"
     }
 
