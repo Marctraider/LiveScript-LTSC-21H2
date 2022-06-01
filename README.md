@@ -57,7 +57,7 @@ Only use if you have actual experience with windows and know how to minimize ris
 - System-wide driver disable 'allowed to go to sleep'
 - Cleanup control panel
 - Desktop/Explorer/DWM custom personalization
-- And much more! (Too much to list)
+- Monitor.ps1 can be used to act on a variety of triggers to futher automate the system as desired (Do something when application runs, or when RDP session is detected)
 
 ## How to use?
 - First configure script to personal preference, set up your own power plan profiles, add/remove target computers/names. 
