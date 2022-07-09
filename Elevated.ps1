@@ -3,7 +3,6 @@
 
     Multi-Platform configuration script for Windows 10 Enterprise LTSC 21H2 (x64).
 
-    1.0.0
 #>
 
 
@@ -242,8 +241,9 @@ Write-Host "Installing Visual C++ Runtime libraries if not installed..." -Foregr
 #
 # Additional service info:
 # CDPSvc - Used for Night Light functionality
+# DPS - Used for tracking battery usage
 #
-#Disable
+# Disable
 Write-Host "Adjusting services start type..." -ForegroundColor Green
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\wuauserv"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
@@ -256,8 +256,6 @@ New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\CertPropSvc"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\DusmSvc"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\DPS"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\WdiServiceHost"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
@@ -458,6 +456,11 @@ if ( $model -like 'VMware*') {
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\DisplayEnhancementService"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
     }
+if ( $model -notlike 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
+    $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\DPS"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+    }
+
 
 # Adjust failure actions
 sc failure DoSvc reset= 60 actions= "" actions= ""
@@ -700,9 +703,11 @@ $Path = "HKU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplicat
 New-ItemProperty -Path $Path -Name "GlobalUserDisabled" -PropertyType Dword -Value 1 -Force
 $Path = "HKU:\Software\Microsoft\Windows\CurrentVersion\Search"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "BackgroundAppGlobalToggle" -PropertyType Dword -Value 0 -Force
-# Disable Application Manager Background scans (Save CPU?)
-$Path = "HKU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\BamThrottling"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "DisableWindowHinting" -PropertyType Dword -Value 1 -Force
+# Disable Application Manager Background scans (Save CPU, but breaks power throttling)
+if ( $model -notlike 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
+    $Path = "HKU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\BamThrottling"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "DisableWindowHinting" -PropertyType Dword -Value 1 -Force
+    }
 
 # Expose all unhidden power plan options
 $PowerSettings = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerSettings' -Recurse -Depth 1 | Where-Object { $_.PSChildName -NotLike 'DefaultPowerSchemeValues' -and $_.PSChildName -NotLike '0' -and $_.PSChildName -NotLike '1' }
@@ -760,6 +765,13 @@ powercfg /d 90000000-0000-0000-0000-000000000009
 
 <# Low-level Configuration #>
 Write-Host "Set Low-level Configuration" -ForegroundColor Green
+# Remove Windows microcode binary, requires a full system shutdown to unload it. Also, BIOS/firmware microcode precedes windows microcode. For full performance, also remove BIOS microcode.
+$integrity = Get-ItemProperty -Path 'HKLM:\SOFTWARE\LiveScript' -Name 'IntegrityVerified'
+if($integrity.IntegrityVerified -eq 1){
+    takeown /f "C:\Windows\System32\mcupdate_*"
+    icacls "C:\Windows\System32\mcupdate_*" /grant *S-1-3-4:F /c /l
+    del C:\Windows\System32\mcupdate_*
+    }
 if ( $model -notlike 'VMware*') {
     # Disable all system-wide exploit mitigations. (nx OptIn still enables DEP for Windows Kernel/System processes)
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
@@ -971,7 +983,7 @@ $Path = "HKU:\System\GameConfigStore"; if(-not (Test-Path -Path $Path)){ New-Ite
 New-ItemProperty -Path $Path -Name "GameDVR_Enabled" -PropertyType Dword -Value 0 -Force
 # Game Mode On/Off
 #$Path = "HKU:\Software\Microsoft\GameBar"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-#New-ItemProperty -Path $Path -Name "AutoGameModeEnabled" -PropertyType Dword -Value 0 -Force
+#New-ItemProperty -Path $Path -Name "AutoGameModeEnabled" -PropertyType Dword -Value 1 -Force
 
 if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
     # Disable Windows Keys, and remap key close to left shift (to left shift)
@@ -1558,7 +1570,7 @@ if ( $model -like 'MS-7B12') {
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'ARP Offload' -RegistryValue '0'
     Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Energy Efficient Ethernet' -RegistryValue '0'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'DMA Coalescing' -RegistryValue '0'
-    #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Enable PME' -RegistryValue '0' # 1 Needed for WoL?
+    #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Enable PME' -RegistryValue '1' # 1 Needed for WoL?
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Flow Control' -RegistryValue '0'
     Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Interrupt Moderation' -RegistryValue '0'
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Interrupt Moderation Rate' -RegistryValue '0'
@@ -1584,7 +1596,7 @@ if ( $model -like 'MS-7B12') {
     #Set-NetAdapterAdvancedProperty -Name '*Ethernet*' -DisplayName 'Wake on Pattern Match' -RegistryValue '0'
     #Set-NetOffloadGlobalSetting -ReceiveSideScaling Enabled
     Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing Disabled
-    Set-NetAdapterRss -Name '*Ethernet*' -Profile 'NUMAStatic' -BaseProcessorNumber 1 -MaxProcessorNumber 1 -NumberOfReceiveQueues 1
+    #Set-NetAdapterRss -Name '*Ethernet*' -Profile 'NUMAStatic' -BaseProcessorNumber 2 -MaxProcessorNumber 7 -NumberOfReceiveQueues 2
     }
 
 if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
@@ -1676,8 +1688,13 @@ if ( $model -like 'MS-7B12') { bcdedit /set disabledynamictick yes }
 <# Global low-level Adjustments #>
 Write-Host "Change Global Low-level Settings" -ForegroundColor Green
 # Enable/Disable GPU features
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "HwSchMode" -PropertyType Dword -Value 2 -Force # 2: Hardware GPU Scheduling On, 1: Off
+# GPU Hardware accelerated scheduling, turn off for mostly non-cpu/gpu bound gaming with fps cap, or with weaker system.
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "HwSchMode" -PropertyType Dword -Value 2 -Force # 2: Hardware GPU Scheduling On, 1: Off
+#if ( $model -like 'MS-7B12') { 
+#    $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#    New-ItemProperty -Path $Path -Name "HwSchMode" -PropertyType Dword -Value 1 -Force # 2: Hardware GPU Scheduling On, 1: Off
+#   }
 New-ItemProperty -Path $Path -Name "PlatformSupportMiracast" -PropertyType Dword -Value 0 -Force
 if ( $model -like 'MS-7B12') {
     #Disable hardware acceleration for .NET/WFP (Affects things like Powershell ISE)
@@ -1685,9 +1702,9 @@ if ( $model -like 'MS-7B12') {
     New-ItemProperty -Path $Path -Name "DisableHWAcceleration" -PropertyType Dword -Value 1 -Force
     }
 # MMCSS
-$Path = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "NetworkThrottlingIndex" -PropertyType Dword -Value 4294967295 -Force
-New-ItemProperty -Path $Path -Name "SystemResponsiveness" -PropertyType Dword -Value 0 -Force # Will most likely be treated as 10 (Minimum)
+#$Path = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "NetworkThrottlingIndex" -PropertyType Dword -Value 4294967295 -Force
+#New-ItemProperty -Path $Path -Name "SystemResponsiveness" -PropertyType Dword -Value 0 -Force # Will most likely be treated as 10 (Minimum)
 
 
 # Disable Devices in Devmgmt.msc that were already disabled through registry. (Get rid of exclamation mark)
@@ -1711,13 +1728,24 @@ if ( $model -like 'A10N-8800E') {
     Get-PnpDevice | Where-Object { $_.FriendlyName -match 'AMD Link Controller Emulation' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
     }
 
-# Disable flushing of disk cache.
+# To further reduce USB 2.0 chatter, reduce polling/interrupt rate on internal keyboard with SweetLow
 if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
+    # Disable flushing of disk cache.
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Enum\SCSI\Disk&Ven_NVMe&Prod_SAMSUNG_MZVLB512\5&12f5e10a&0&000000\Device Parameters\Disk"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "CacheIsPowerProtected" -PropertyType Dword -Value "1" -Force
+    # Install WinUSB driver for USB\VID_1532&PID_0252&MI_02 so we can control keyboard RGB
+    Get-ChildItem "Drivers\usb_driver" -Recurse -Filter *inf | ForEach-Object { pnputil.exe /add-driver $_.FullName /install }
+    # Enable USB autosuspend MI_00 and MI_01
+    $Path = "HKLM:\SYSTEM\CurrentControlSet\Enum\USB\VID_1532&PID_0252&MI_00\6&52eb766&6&0000\Device Parameters"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "SelectiveSuspendEnabled" -PropertyType Dword -Value "1" -Force
+    $Path = "HKLM:\SYSTEM\CurrentControlSet\Enum\USB\VID_1532&PID_0252&MI_01\6&52eb766&6&0001\Device Parameters"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "SelectiveSuspendEnabled" -PropertyType Dword -Value "1" -Force
     }
 
 if ( $model -like 'MS-7B12') {
+    # Disable ASPM for Xonar Essence PCI bridge (Card doesn't handle ASPM L1 and will freeze system, so in case we want to use native OS controlled ASPM:
+    $Path = "HKLM:\SYSTEM\CurrentControlSet\Enum\PCI\VEN_1B21&DEV_1080&SUBSYS_00000000&REV_04\4&15478a&0&0009\Device Parameters\e5b3b5ac-9725-4f78-963f-03dfb1d828c7"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+    New-ItemProperty -Path $Path -Name "ASPMOptOut" -PropertyType Dword -Value "1" -Force
 
     # Create MSISupported key for Nvidia Geforce 2080 Super as it doesn't exist.
     #$MSIMode = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.Name -match 'VEN_10DE&DEV_1E81' -and $_.PSChildName -match 'Interrupt Management' }
@@ -1725,22 +1753,28 @@ if ( $model -like 'MS-7B12') {
 
     # Set Interrupt Affinity (Intel XHCI Controller)
     #$InterruptAffinity = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'Affinity Policy' -and $_.Name -match 'VEN_8086&DEV_A36D' }
-    #ForEach ($item in $InterruptAffinity) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'DevicePolicy' -Value 4 -Force; Set-ItemProperty -Path $path -Name 'AssignmentSetOverride' -Type Binary -Value ([byte[]](0x04)) -Force }
+    #ForEach ($item in $InterruptAffinity) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'DevicePolicy' -Value 4 -Force; Set-ItemProperty -Path $path -Name 'AssignmentSetOverride' -Type Binary -Value ([byte[]](0x02)) -Force }
 
     # Set Interrupt Affinity (Asmedia XHCI Controller) (For gaming peripherals separated onto this controller)
     #$InterruptAffinity = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'Affinity Policy' -and $_.Name -match 'VEN_1B21&DEV_2142' }
+    #ForEach ($item in $InterruptAffinity) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'DevicePolicy' -Value 4 -Force; Set-ItemProperty -Path $path -Name 'AssignmentSetOverride' -Type Binary -Value ([byte[]](0x04)) -Force }
+
+    # Set Interrupt Affinity (AHCI/RAID Controller)
+    #$InterruptAffinity = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'Affinity Policy' -and $_.Name -match 'VEN_8086&DEV_2822' }
     #ForEach ($item in $InterruptAffinity) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'DevicePolicy' -Value 4 -Force; Set-ItemProperty -Path $path -Name 'AssignmentSetOverride' -Type Binary -Value ([byte[]](0x80)) -Force }
 
     # (WARNING: Needs to be set at least to equal or higher to the amount of RSS queues set + 1). 
     # Set MSI Message Limit (Intel Ethernet I210-T1 Gbe NIC)
-    $MSIMessageLimit = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'MessageSignaledInterruptProperties' -and $_.Name -match 'VEN_8086&DEV_1533' }
-    ForEach ($item in $MSIMessageLimit) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'MessageNumberLimit' -Value 2 -Force }
+    #$MSIMessageLimit = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 -ea SilentlyContinue | Where-Object { $_.PSChildName -Like 'MessageSignaledInterruptProperties' -and $_.Name -match 'VEN_8086&DEV_1533' }
+    #ForEach ($item in $MSIMessageLimit) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'MessageNumberLimit' -Value 2 -Force }
 
     # Disable Unnecessary Devices (Nvidia USB 3.1 Controller, Nvidia DisplayPort HD Audio, etc)
     Disable-PnpDevice -InstanceId "PCI\VEN_10DE&DEV_10F8&SUBSYS_3FE91458&REV_A1\4&50A803F&0&0108" -confirm:$false
     Disable-PnpDevice -InstanceId "PCI\VEN_10DE&DEV_1AD8&SUBSYS_3FE91458&REV_A1\4&50A803F&0&0208" -confirm:$false
     Disable-PnpDevice -InstanceId "PCI\VEN_10DE&DEV_1AD9&SUBSYS_3FE91458&REV_A1\4&50A803F&0&0308" -confirm:$false
-    
+    Disable-PnpDevice -InstanceId "PCI\VEN_8086&DEV_A360&SUBSYS_7B121462&REV_10\3&11583659&0&B0" -confirm:$false
+
+    <#
     # Disable 'Allow the computer to turn off this device to save power' on all possible devices.
     $device = Get-WmiObject Win32_PnPEntity
     $powerMgmt = Get-WmiObject MSPower_DeviceEnable -Namespace root\wmi
@@ -1757,7 +1791,6 @@ if ( $model -like 'MS-7B12') {
                     }
     	}
     }
-  
    
    # Disable 'Allow this device to wake the computer' on all possible devices.
    $device = Get-WmiObject Win32_PnPEntity
@@ -1775,6 +1808,7 @@ if ( $model -like 'MS-7B12') {
                     }
     	}
     }
+    #>
     
     cd '.\Resources\Sonar Essence STX II\'
     & .\DisableSpeakerCompensation.exe
@@ -1785,8 +1819,8 @@ if ( $model -like 'MS-7B12') {
     }
 
 # Disable Line-based Interrupt Emulation on devices where 'MSISupported' key exist. (Mostly applies to In-box HD Audio driver on most platforms)
-$MSIMode = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 | Where-Object { $_.PSChildName -Like 'MessageSignaledInterruptProperties' }
-ForEach ($item in $MSIMode) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'MSISupported' -Value 1 -Force }
+#$MSIMode = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Enum\PCI' -Recurse -Depth 5 | Where-Object { $_.PSChildName -Like 'MessageSignaledInterruptProperties' }
+#ForEach ($item in $MSIMode) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'MSISupported' -Value 1 -Force }
 
 # Change Mouse/Keyboard Event Buffer Size
 #$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }

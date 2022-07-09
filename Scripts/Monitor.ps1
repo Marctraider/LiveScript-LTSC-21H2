@@ -1,19 +1,25 @@
 # Monitor WMI events and take action on trigger
+$model = (gwmi Win32_ComputerSystem).Model
 
 # Initial starting state of elements controlled by this script
 Start-Sleep -Seconds 1
-Disable-NetAdapter -Name '*VMNet*' -Confirm:$False # Fixes NCSI issues at startup
+if ( $model -notlike 'A10N-8800E') {
+    if (!(Get-Process "vmware-vmx" -ErrorAction silentlycontinue)) {
+        Disable-NetAdapter -Name '*VMNet*' -Confirm:$False # Fixes NCSI issues at startup
+        }
+    }
 # Check whether we logged in from a logged out system remotely.
-$Test = Get-EventLog -List | %{Get-EventLog -LogName Microsoft-Windows-TerminalServices-LocalSessionManager/Operational -InstanceId 21 -Message '*192.168.*'-After (Get-Date).AddSeconds(-15) -ErrorAction Ignore} | Sort-Object TimeGenerated | Format-Table -AutoSize -Wrap
-if ($Test -eq $Null) {
-    Start-Process -NoNewWindow -LoadUserProfile -FilePath "C:\Windows\XonarSwitch.exe" -WorkingDirectory "C:\Windows"
+if ( $model -like 'MS-7B12') {
+    $Test = Get-EventLog -List | %{Get-EventLog -LogName Microsoft-Windows-TerminalServices-LocalSessionManager/Operational -InstanceId 21 -Message '*192.168.*'-After (Get-Date).AddSeconds(-15) -ErrorAction Ignore} | Sort-Object TimeGenerated | Format-Table -AutoSize -Wrap
+    if ($Test -eq $Null) {
+        if (!(Get-Process "XonarSwitch" -ErrorAction silentlycontinue)) {
+            Start-Process -NoNewWindow -LoadUserProfile -FilePath "C:\Windows\XonarSwitch.exe" -WorkingDirectory "C:\Windows"
+            }
+        }
     }
 
 
-
 Get-EventSubscriber | Unregister-Event
-
-$model = (gwmi Win32_ComputerSystem).Model
 
 $objUser = New-Object System.Security.Principal.NTAccount("Administrator")
 $strSID = $objUser.Translate([System.Security.Principal.SecurityIdentifier])
@@ -112,17 +118,17 @@ if ( $model -like 'MS-7B12') {
 
 # Monitor RDP session events
 if ( $model -like 'MS-7B12') {
-    Register-WmiEvent -Query 'SELECT * FROM __instanceCreationEvent WHERE TargetInstance ISA "Win32_NTLogEvent" AND (TargetInstance.EventCode=25 OR TargetInstance.EventCode=21) AND TargetInstance.Message LIKE "%192.168.%"' -SourceIdentifier 'RemoteSessionLoggedOnOrReconnected' -Action {
+    Register-WmiEvent -Query 'SELECT * FROM __instanceCreationEvent WHERE TargetInstance ISA "Win32_NTLogEvent" AND (TargetInstance.EventCode=25 OR TargetInstance.EventCode=21) AND (TargetInstance.Message LIKE "%192.%" OR TargetInstance.Message LIKE "%10.%")' -SourceIdentifier 'RemoteSessionLoggedOnOrReconnected' -Action {
     Write-Host "RDP Logged On or reconnected"
     if (Get-Process "XonarSwitch" -ErrorAction silentlycontinue) {
         Stop-Process -processname 'XonarSwitch' -Force
         }
     }
     
-    Register-WmiEvent -Query 'SELECT * FROM __instanceCreationEvent WHERE TargetInstance ISA "Win32_NTLogEvent" AND TargetInstance.EventCode=24 AND TargetInstance.Message LIKE "%192.168.%"' -SourceIdentifier 'RemoteSessionLoggedff' -Action {
-    Write-Host "RDP Logged off"
+    Register-WmiEvent -Query 'SELECT * FROM __instanceCreationEvent WHERE TargetInstance ISA "Win32_NTLogEvent" AND TargetInstance.EventCode=4624 AND TargetInstance.Message LIKE "%127.0.0.1%"' -SourceIdentifier 'LocalLogon' -Action {
+    Write-Host "Local Logon"
     if (!(Get-Process "XonarSwitch" -ErrorAction silentlycontinue)) {
-        Start-Sleep -Seconds 5
+        Start-Sleep -Seconds 2
         Start-Process -NoNewWindow -LoadUserProfile -FilePath "C:\Windows\XonarSwitch.exe" -WorkingDirectory "C:\Windows"
         }
     }
