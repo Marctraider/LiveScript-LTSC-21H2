@@ -13,25 +13,25 @@ $Installed = Get-AppxPackage -AllUsers | where-object {$_.PackageFullName -like 
     Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.VCLibs.140.00_14.0.30704.0_x64__8wekyb3d8bbwe.appx -SkipLicense
     }
 $Installed = Get-AppxPackage -AllUsers | where-object {$_.PackageFullName -like "Microsoft.AV1VideoExtension*"}; if(-not $Installed) {
-    Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.AV1VideoExtension_1.1.41601.0_x64__8wekyb3d8bbwe.appx -SkipLicense
+    Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.AV1VideoExtension_1.1.51091.0_x64__8wekyb3d8bbwe.Appx -SkipLicense
     }
 $Installed = Get-AppxPackage -AllUsers | where-object {$_.PackageFullName -like "Microsoft.VP9VideoExtensions*"}; if(-not $Installed) {
-    Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.VP9VideoExtensions_1.0.42791.0_x64__8wekyb3d8bbwe.appx -SkipLicense
+    Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.VP9VideoExtensions_1.0.51171.0_x64__8wekyb3d8bbwe.Appx -SkipLicense
     }
 $Installed = Get-AppxPackage -AllUsers | where-object {$_.PackageFullName -like "Microsoft.HEIFImageExtension*"}; if(-not $Installed) {
-    Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.HEIFImageExtension_1.0.43012.0_x64__8wekyb3d8bbwe.appx -SkipLicense
+    Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.HEIFImageExtension_1.0.50272.0_x64__8wekyb3d8bbwe.Appx -SkipLicense
     }
 $Installed = Get-AppxPackage -AllUsers | where-object {$_.PackageFullName -like "Microsoft.MPEG2VideoExtension*"}; if(-not $Installed) {
-    Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.MPEG2VideoExtension_1.0.42152.0_x64__8wekyb3d8bbwe.appx -SkipLicense
+    Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.MPEG2VideoExtension_1.0.50901.0_x64__8wekyb3d8bbwe.Appx -SkipLicense
     }
 $Installed = Get-AppxPackage -AllUsers | where-object {$_.PackageFullName -like "Microsoft.WebpImageExtension*"}; if(-not $Installed) {
     Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.WebpImageExtension_1.0.42351.0_x64__8wekyb3d8bbwe.Appx -SkipLicense
     }
 $Installed = Get-AppxPackage -AllUsers | where-object {$_.PackageFullName -like "Microsoft.HEVCVideoExtensions*"}; if(-not $Installed) {
-    Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.HEVCVideoExtensions_1.0.42702.0_x64__8wekyb3d8bbwe.Appx -SkipLicense
+    Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.HEVCVideoExtensions_2.0.51122.0_x64__8wekyb3d8bbwe.Appx -SkipLicense
     }
 $Installed = Get-AppxPackage -AllUsers | where-object {$_.PackageFullName -like "Microsoft.RawImageExtension*"}; if(-not $Installed) {
-    Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.RawImageExtension_2.0.23022.0_neutral_~_8wekyb3d8bbwe.appxbundle -SkipLicense
+    Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.RawImageExtension_2.1.31392.0_neutral_~_8wekyb3d8bbwe.AppxBundle -SkipLicense
     }
 $Installed = Get-AppxPackage -AllUsers | where-object {$_.PackageFullName -like "Microsoft.WebMediaExtensions*"}; if(-not $Installed) {
     Add-AppxProvisionedPackage -Online -PackagePath .\Microsoft.WebMediaExtensions_1.0.42192.0_neutral_~_8wekyb3d8bbwe.AppxBundle -SkipLicense
@@ -102,7 +102,14 @@ if ( $model -like 'MS-7B12' -or $model -like 'Blade Stealth 13 (Early 2020) - RZ
     $Sttrig = New-ScheduledTaskTrigger -AtLogOn
     Register-ScheduledTask Script\MTHaxTool -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Start AHK Script.'
     }
-
+<#
+if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
+    $Sta = New-ScheduledTaskAction -Execute "powershell.exe" -Argument '-NonInteractive -WindowStyle Hidden -File C:\Windows\Scripts\MonitorKeyboard.ps1'
+    $Stset = New-ScheduledTaskSettingsSet -Compatibility Win8 -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit '00:00:00'
+    $Sttrig = New-ScheduledTaskTrigger -AtLogOn
+    Register-ScheduledTask Script\MonitorKeyboard -Action $Sta -Settings $Stset -Trigger $Sttrig -Description 'Monitor Keyboard input and suspend Razer Device on idle for extra power savings.'
+    }
+#>
 
 # Install user-space applications
 Write-Host "Install Userspace Applications" -ForegroundColor Green

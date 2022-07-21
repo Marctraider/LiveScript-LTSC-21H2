@@ -360,44 +360,35 @@ New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 3 -Force
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\stisvc"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 3 -Force
 
-# Automatic
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\simptcp"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 2 -Force
-# Automatic (Night Light requirements)
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\NcbService"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path } # Required for Night Light
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 2 -Force 
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\TokenBroker"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 2 -Force 
-
 # Disable Drivers not listed under services.msc
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\volmgrx"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\NetBIOS"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\CldFlt"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\CSC"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\NetBIOS"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\CldFlt"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\CSC"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 #$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\wcifs"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 #New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 #$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\storqosflt"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 #New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 #$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\GpuEnergyDrv"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 #New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\lltdio"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\MsLldp"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\wcncsvc"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\rspndr"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\spaceport"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\lltdio"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\MsLldp"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\wcncsvc"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\rspndr"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\spaceport"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 #$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\Vid"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 #New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
-$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\kdnic"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
+#$Path = "HKLM:\SYSTEM\CurrentControlSet\Services\kdnic"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+#New-ItemProperty -Path $Path -Name "Start" -PropertyType DWord -Value 4 -Force
 
 # Platform specific
 if ( $model -like 'MS-7B12') {
@@ -713,7 +704,6 @@ if ( $model -notlike 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
 $PowerSettings = Get-ChildItem -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerSettings' -Recurse -Depth 1 | Where-Object { $_.PSChildName -NotLike 'DefaultPowerSchemeValues' -and $_.PSChildName -NotLike '0' -and $_.PSChildName -NotLike '1' }
 ForEach ($item in $PowerSettings) { $path = $item -replace "HKEY_LOCAL_MACHINE","HKLM:"; Set-ItemProperty -Path $path -Name 'Attributes' -Value 2 -Force }
 
-
 # Prepare predefined Power Plans, Import and activate Dummy.pow plan for temporary use.
 copy .\Pow\*.pow C:\
 powercfg /import "c:\Dummy.pow" 90000000-0000-0000-0000-000000000009
@@ -765,6 +755,7 @@ powercfg /d 90000000-0000-0000-0000-000000000009
 
 <# Low-level Configuration #>
 Write-Host "Set Low-level Configuration" -ForegroundColor Green
+<#
 # Remove Windows microcode binary, requires a full system shutdown to unload it. Also, BIOS/firmware microcode precedes windows microcode. For full performance, also remove BIOS microcode.
 $integrity = Get-ItemProperty -Path 'HKLM:\SOFTWARE\LiveScript' -Name 'IntegrityVerified'
 if($integrity.IntegrityVerified -eq 1){
@@ -772,12 +763,13 @@ if($integrity.IntegrityVerified -eq 1){
     icacls "C:\Windows\System32\mcupdate_*" /grant *S-1-3-4:F /c /l
     del C:\Windows\System32\mcupdate_*
     }
+#>
 if ( $model -notlike 'VMware*') {
     # Disable all system-wide exploit mitigations. (nx OptIn still enables DEP for Windows Kernel/System processes)
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "MitigationAuditOptions" -PropertyType Binary -Value ([byte[]](0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Force
     New-ItemProperty -Path $Path -Name "MitigationOptions" -PropertyType Binary -Value ([byte[]](0x22,0x22,0x22,0x00,0x00,0x02,0x00,0x00,0x00,0x02,0x00,0x00,0x00,0x00,0x00,0x00)) -Force
-    # Disable Spectre/Meltdown Mitigation (Unknown if functional if hardware cpu support
+    # Disable Spectre/Meltdown Mitigation
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "FeatureSettingsOverride" -PropertyType Dword -Value 3 -Force
     New-ItemProperty -Path $Path -Name "FeatureSettingsOverrideMask" -PropertyType Dword -Value 3 -Force
@@ -800,12 +792,14 @@ if ( $model -like 'VMware*') {
 #$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 #New-ItemProperty -Path $Path -Name "SwapfileControl" -PropertyType Dword -Value 0 -Force
 # NTFS
+<#
 $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
 New-ItemProperty -Path $Path -Name "NtfsDisable8dot3NameCreation" -PropertyType Dword -Value 1 -Force
 New-ItemProperty -Path $Path -Name "NtfsDisableLastAccessUpdate" -PropertyType Dword -Value -2147483647 -Force
 New-ItemProperty -Path $Path -Name "LongPathsEnabled" -PropertyType Dword -Value 1 -Force
 New-ItemProperty -Path $Path -Name "NtfsDisableCompression" -PropertyType Dword -Value 1 -Force
 New-ItemProperty -Path $Path -Name "NtfsEncryptPagingFile" -PropertyType Dword -Value 0 -Force
+#>
 
 if ( $model -like 'MS-7B12') { 
     Disable-MMAgent -MemoryCompression -PageCombining -ApplicationPreLaunch
@@ -1561,7 +1555,7 @@ Write-Host "Setting up Samba Configuration" -ForegroundColor Green
 New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name LocalAccountTokenFilterPolicy -PropertyType Dword -Value 1 -Force
 Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
 # SMB Client Configuration
-Set-SmbClientConfiguration -EnableInsecureGuestLogons 0 -Force
+#Set-SmbClientConfiguration -EnableInsecureGuestLogons 0 -Force
 Set-SmbClientConfiguration -EnableBandwidthThrottling 0 -Force
 
 
@@ -1688,13 +1682,9 @@ if ( $model -like 'MS-7B12') { bcdedit /set disabledynamictick yes }
 <# Global low-level Adjustments #>
 Write-Host "Change Global Low-level Settings" -ForegroundColor Green
 # Enable/Disable GPU features
-# GPU Hardware accelerated scheduling, turn off for mostly non-cpu/gpu bound gaming with fps cap, or with weaker system.
-#$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-#New-ItemProperty -Path $Path -Name "HwSchMode" -PropertyType Dword -Value 2 -Force # 2: Hardware GPU Scheduling On, 1: Off
-#if ( $model -like 'MS-7B12') { 
-#    $Path = "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
-#    New-ItemProperty -Path $Path -Name "HwSchMode" -PropertyType Dword -Value 1 -Force # 2: Hardware GPU Scheduling On, 1: Off
-#   }
+# GPU Hardware accelerated scheduling
+$Path = "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
+New-ItemProperty -Path $Path -Name "HwSchMode" -PropertyType Dword -Value 2 -Force # 2: Hardware GPU Scheduling On, 1: Off
 New-ItemProperty -Path $Path -Name "PlatformSupportMiracast" -PropertyType Dword -Value 0 -Force
 if ( $model -like 'MS-7B12') {
     #Disable hardware acceleration for .NET/WFP (Affects things like Powershell ISE)
@@ -1710,9 +1700,9 @@ if ( $model -like 'MS-7B12') {
 # Disable Devices in Devmgmt.msc that were already disabled through registry. (Get rid of exclamation mark)
 #Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Remote Desktop Device Redirector Bus' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
 #Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Microsoft Hyper-V Virtualization Infrastructure Driver' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
-Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Microsoft Storage Spaces Controller' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
-Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Microsoft Kernel Debug Network Adapter' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
-Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Remote Desktop Camera Bus' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
+#Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Microsoft Storage Spaces Controller' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
+#Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Microsoft Kernel Debug Network Adapter' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
+#Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Remote Desktop Camera Bus' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
 Get-PnpDevice | Where-Object { $_.FriendlyName -match 'Intel(R) Optane(TM) Memory and Storage Management Component' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
 # DroidCam
 Get-PnpDevice | Where-Object { $_.FriendlyName -match 'DroidCam Virtual Audio' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
@@ -1728,11 +1718,12 @@ if ( $model -like 'A10N-8800E') {
     Get-PnpDevice | Where-Object { $_.FriendlyName -match 'AMD Link Controller Emulation' } | Disable-PnpDevice -Confirm:$false -ea SilentlyContinue
     }
 
-# To further reduce USB 2.0 chatter, reduce polling/interrupt rate on internal keyboard with SweetLow
 if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
     # Disable flushing of disk cache.
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Enum\SCSI\Disk&Ven_NVMe&Prod_SAMSUNG_MZVLB512\5&12f5e10a&0&000000\Device Parameters\Disk"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "CacheIsPowerProtected" -PropertyType Dword -Value "1" -Force
+    <# Need to do manual for now
+    # To further reduce USB 2.0 chatter, reduce polling/interrupt rate on internal keyboard with SweetLow
     # Install WinUSB driver for USB\VID_1532&PID_0252&MI_02 so we can control keyboard RGB
     Get-ChildItem "Drivers\usb_driver" -Recurse -Filter *inf | ForEach-Object { pnputil.exe /add-driver $_.FullName /install }
     # Enable USB autosuspend MI_00 and MI_01
@@ -1740,6 +1731,7 @@ if ( $model -like 'Blade Stealth 13 (Early 2020) - RZ09-0310') {
     New-ItemProperty -Path $Path -Name "SelectiveSuspendEnabled" -PropertyType Dword -Value "1" -Force
     $Path = "HKLM:\SYSTEM\CurrentControlSet\Enum\USB\VID_1532&PID_0252&MI_01\6&52eb766&6&0001\Device Parameters"; if(-not (Test-Path -Path $Path)){ New-Item -ItemType String -Path $Path }
     New-ItemProperty -Path $Path -Name "SelectiveSuspendEnabled" -PropertyType Dword -Value "1" -Force
+    #>
     }
 
 if ( $model -like 'MS-7B12') {
@@ -1775,7 +1767,7 @@ if ( $model -like 'MS-7B12') {
     Disable-PnpDevice -InstanceId "PCI\VEN_8086&DEV_A360&SUBSYS_7B121462&REV_10\3&11583659&0&B0" -confirm:$false
 
     <#
-    # Disable 'Allow the computer to turn off this device to save power' on all possible devices.
+    # Disable 'Allow the computer to turn off this device to save power' on all possible devices. (Only effective if D3Cold/hot is enabled)
     $device = Get-WmiObject Win32_PnPEntity
     $powerMgmt = Get-WmiObject MSPower_DeviceEnable -Namespace root\wmi
     foreach ($p in $powerMgmt)
